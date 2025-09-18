@@ -1,6 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaRegSave } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
+
 
 const PurchaseReport = () => {
   const [suppliers, setSuppliers] = useState([])
@@ -38,6 +41,24 @@ const PurchaseReport = () => {
       console.error(err.response?.data || err.message)
     }
   }
+  const [search, setSearch] = useState("");
+  const filteredreports = purchasereport.filter((p) => {
+    const supplierName = p.supplier_id?.name || p.supplier_id?.toString() || "";
+    return (
+      supplierName.toLowerCase().includes(search.toLowerCase()) ||
+      p.from_date.toString().toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
+  
+  const handleDelete = async (id) => {
+  try {
+    await axios.delete(`http://localhost:5000/api/reports/purchase/${id}`);
+    setPurchasereport(purchasereport.filter((p) => p._id !== id));
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 
   return (
@@ -69,27 +90,50 @@ const PurchaseReport = () => {
       <div className=" card shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">PurchaseReport Tree</h5>
+          <div className="mt-4 mb-2 input-group">
+            <input type="text" className="form-control" placeholder="Search Supplier name" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <span className="input-group-text"><FaSearch /></span>
+          </div>
           <table className="table table-bordered table-striped mt-4">
             <thead className="table-dark">
               <tr>
                 <th className="fw-bold">From Date</th>
                 <th className="fw-bold">To Date</th>
                 <th className="fw-bold">Supplier</th>
+                <th className="fw-bold">Actions</th>
 
 
               </tr>
             </thead>
             <tbody>
-              {purchasereport.map((p) => (
-                <tr key={p._id}>
-
-                  <td>{p.from_date}</td>
-                  <td>{p.to_date}</td>
-                  <td>{p.supplier_id.name}</td>
-
-
+              {filteredreports.length === 0 ? (
+                <tr>
+                  <td colSpan="11" className="text-center">
+                    No reports found.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                purchasereport.map((p) => (
+                  <tr key={p._id}>
+
+                    <td>{p.from_date}</td>
+                    <td>{p.to_date}</td>
+                    <td>{p.supplier_id.name}</td>
+                    <td>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(p._id)}
+                      >
+                        <span className="text-warning">
+                          <MdDeleteForever />
+                        </span>
+                        Delete
+                      </button>
+                    </td>
+
+
+                  </tr>
+                )))}
             </tbody>
           </table>
         </div>

@@ -4,6 +4,7 @@ import { FaRegSave } from "react-icons/fa";
 import { FcCancel } from "react-icons/fc";
 import axios from 'axios';
 import { MdDeleteForever } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 const Tax = () => {
     const [taxes, setTaxes] = useState([])
     const [form, setForm] = useState({
@@ -45,6 +46,13 @@ const Tax = () => {
             console.error(err.response?.data || err.message)
         }
     }
+
+     const [search, setSearch] = useState("");
+      const filteredtaxes = taxes.filter(
+            (t) =>
+                t.name.toLowerCase().includes(search.toLowerCase()) 
+                
+        );
 
     const handleDelete = async (id) => {
     try {
@@ -105,6 +113,10 @@ const Tax = () => {
             <div className="card shadow-sm my-4">
                 <div className="card-body">
                     <h5>Existing Tax Rates</h5>
+                     <div className="mt-4 mb-2 input-group">
+                                                      <input type="text" className="form-control" placeholder="Search Category code, Category name" value={search} onChange={(e) => setSearch(e.target.value)} />
+                                                      <span className="input-group-text"><FaSearch /></span>
+                                                  </div>
                     <table className="table table-bordered table-striped">
                         <thead className="table-dark">
                             <tr>
@@ -119,7 +131,14 @@ const Tax = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {taxes.map(t => (
+                            {filteredtaxes.length === 0 ? (
+                                <tr>
+                                    <td colSpan="11" className="text-center">
+                                        No taxes found.
+                                    </td>
+                                </tr>
+                            ) : (
+                            taxes.map(t => (
                                 <>
                                     <tr key={t._id}>
                                         <td>{t.name}</td>
@@ -140,7 +159,7 @@ const Tax = () => {
                                     </tr>
                                 </>
                             )
-                            )}
+                            ))}
                         </tbody>
                         </table>
                 </div>

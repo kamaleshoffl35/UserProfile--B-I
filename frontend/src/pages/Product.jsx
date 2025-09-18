@@ -26,21 +26,32 @@ const Product = () => {
         status: false,
     });
     const [categories, setCategories] = useState([]);
+    const [brands,setBrands]=useState([])
     useEffect(() => {
         axios.get("http://localhost:5000/api/categories")
             .then(res => setCategories(res.data))
             .catch(err => console.error("Error fetching categories:", err));
+
+    
 
         axios.get("http://localhost:5000/api/products")
             .then(res => setProducts(res.data))
             .catch(err => console.error(err));
     }, []);
 
+    
+
     const [search, setSearch] = useState("");
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+         if (name === "category_id") {
+  const selectedCat = categories.find(c => c._id === value);
+  setBrands(selectedCat ? selectedCat.brands : []);
+  setForm({ ...form, category_id: value, brand_name: "" });
+}
+
 
     };
 
@@ -53,7 +64,7 @@ const Product = () => {
                 name: "",
                 sku: "",
                 category_id: "",
-                brand_id: "",
+                brand_name: "",
                 unit_id: "Kg",
                 hsn_code: "",
                 tax_rate_id: "18%",
@@ -111,7 +122,7 @@ const Product = () => {
                     >
                         <option value="">Select Category</option>
                         {categories.map((cat) => (
-                            <option key={cat._id} value={cat.name}>
+                            <option key={cat._id} value={cat._id}>
                                 {cat.name}
                             </option>
                         ))}
@@ -120,16 +131,14 @@ const Product = () => {
 
                 <div className="col-md-6">
                     <label className="form-label">Brand (Optional)</label>
-                    <select className="form-select bg-light" name="brand_id" value={form.brand_id} onChange={handleChange}>
+                    <select className="form-select bg-light" name="brand_name" value={form.brand_name} onChange={handleChange}>
                         <option value="">Select Brand</option>
-                        <option>Generic</option>
-                        <option>Acme</option>
-                        <option>Contoso</option>
+                        {brands.map((b,idx)=>(<option key={idx} value={b.name}>{b.name}</option>))}
                     </select>
                 </div>
                 <div className="col-md-6">
                     <label className="form-label">Unit of Measure <span className="text-danger">*</span></label>
-                    <select className="form-select bg-light" name="unit_id" value={form.unit_id} onChange={handleChange} >
+                    <select className="form-select bg-light" name="unit_id" value={form.unit_id} onChange={handleChange}  required >
                         <option>Kg</option>
                         <option>Litre</option>
                         <option>Piece</option>
@@ -137,11 +146,11 @@ const Product = () => {
                 </div>
                 <div className="col-md-6">
                     <label className="form-label">HSN Code (Optional)</label>
-                    <input type="text" className="form-control bg-light" name="hsn_code" value={form.hsn_code} onChange={handleChange} />
+                    <input type="number" className="form-control bg-light" name="hsn_code" value={form.hsn_code} onChange={handleChange} />
                 </div>
                 <div className="col-md-6">
                     <label className="form-label">Tax Rate <span className="text-danger">*</span></label>
-                    <select className="form-select bg-light" name="tax_rate_id" value={form.tax_rate_id} onChange={handleChange}>
+                    <select className="form-select bg-light" name="tax_rate_id" value={form.tax_rate_id} onChange={handleChange} required>
                         <option>0%</option>
                         <option>5%</option>
                         <option>12%</option>
@@ -163,7 +172,7 @@ const Product = () => {
                 </div>
                 <div className="col-md-6">
                     <label className="form-label">Min Stock / Reorder Level <span className="text-danger">*</span></label>
-                    <input type="number" className="form-control bg-light" name="min_stock" value={form.min_stock} onChange={handleChange} required />
+                    <input type="number" className="form-control bg-light" name="min_stock" value={form.min_stock} onChange={handleChange}  />
                 </div>
                 <div className="col-md-6">
                     <label className="form-label">Barcode (Optional)</label>
@@ -228,7 +237,7 @@ const Product = () => {
                                         <td>{p.sku}</td>
                                         <td>{p.name}</td>
                                         <td>{p.category_id}</td>
-                                        <td>{p.brand_id}</td>
+                                        <td>{p.brand_name}</td>
                                         <td>{p.unit_id}</td>
                                         <td>{p.tax_rate_id}</td>
                                         <td>{p.mrp}</td>

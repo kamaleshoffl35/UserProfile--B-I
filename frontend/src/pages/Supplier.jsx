@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { IoIosContact } from "react-icons/io";
 import { FaRegSave } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
 import axios from 'axios';
 
 const Supplier = () => {
@@ -44,6 +46,23 @@ const Supplier = () => {
       console.error(err.response?.data || err.message)
     }
   }
+
+  const [search, setSearch] = useState("");
+      const filteredsuppliers = suppliers.filter(
+          (s) =>
+              s.name.toLowerCase().includes(search.toLowerCase()) ||
+              s.phone.toString().includes(search) ||
+              s.email.toLowerCase().includes(search.toLowerCase())
+      );
+
+      const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/suppliers/${id}`);
+      setSupplier(suppliers.filter((s) => s._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <div className="container mt-4 bg-gradient-warning">
       <h3 className="mb-4"><span className="text-success"><IoIosContact /></span>  <b>SUPPLIER MASTER</b></h3>
@@ -51,12 +70,24 @@ const Supplier = () => {
 
         <div className="col-md-6">
           <label className="form-label ">Supplier Name <span className="text-danger">*</span></label>
-          <input type="text" className="form-control bg-light" placeholder="Enter Supplier Name" name="name" value={form.name} onChange={handleChange} />
+          <input type="text" className="form-control bg-light" placeholder="Enter Supplier Name" name="name" value={form.name} onChange={handleChange} required/>
         </div>
         <div className="col-md-6">
-          <label className="form-label">Mobile Number<span className="text-danger">*</span></label>
-          <input type="number" className="form-control bg-light" placeholder="10-digit mobile number" maxLength="10" minLength="10" name="phone" value={form.phone} onChange={handleChange} required onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }} />
-        </div>
+          <label className="form-label">Mobile Number<span className="text-danger">*</span></label><div className="input-group">
+                        <select
+                            className="form-select"
+                            style={{ maxWidth: "100px" }}
+                            name="country_code"
+                            value={form.country_code}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                        </select>
+          <input type="number" className="form-control bg-light" placeholder="10-digit mobile number" maxLength="10" minLength="10" name="phone" value={form.phone} onChange={handleChange} pattern="\d{10}" required onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }} />
+        </div></div>
 
         <div className="col-md-6">
           <label className="form-label">GSTIN (Optional)</label>
@@ -95,6 +126,10 @@ const Supplier = () => {
       <div className=" card shadow-sm">
                 <div className="card-body">
                     <h5 className="mb-3">Supplier Tree</h5>
+                    <div className="mt-4 mb-2 input-group">
+                                            <input type="text" className="form-control" placeholder="Search Category code, Category name" value={search} onChange={(e) => setSearch(e.target.value)} />
+                                            <span className="input-group-text"><FaSearch /></span>
+                                        </div>
       <table className="table table-bordered table-striped">
         <thead className="table-dark">
           <tr>
@@ -107,10 +142,18 @@ const Supplier = () => {
             <th className="fw-bold">State</th>
 
             <th className="fw-bold">Opening</th>
+            <th className="fw-bold">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {suppliers.map((s) => (
+          {filteredsuppliers.length === 0 ? (
+                                <tr>
+                                    <td colSpan="11" className="text-center">
+                                        No suppliers found.
+                                    </td>
+                                </tr>
+                            ) : (
+          suppliers.map((s) => (
             <tr key={s._id}>
               <td>{s.name}</td>
               <td>{s.phone}</td>
@@ -121,9 +164,15 @@ const Supplier = () => {
               <td>{s.state_code}</td>
 
               <td>{s.opening_balance}</td>
+              <td> <button className="btn btn-danger btn-sm" onClick={()=>handleDelete(s._id)}>
+                                                              <span className="text-warning">
+                                                                  <MdDeleteForever />
+                                                              </span>
+                                                              Delete
+                                                          </button></td>
 
             </tr>
-          ))}
+          )))}
         </tbody>
       </table>
     </div>

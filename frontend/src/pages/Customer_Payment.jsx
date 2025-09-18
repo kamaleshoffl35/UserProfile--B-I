@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { MdAttachMoney } from "react-icons/md";
 import { FaRegSave } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 import axios from 'axios';
 
 const Customer_Payment = () => {
@@ -46,6 +48,25 @@ const Customer_Payment = () => {
             console.error(err.response?.data || err.message)
         }
     }
+    const [search, setSearch] = useState("");
+      const filteredpayments = payments.filter((c) => {
+  const customerName = c.customer_id?.name || c.customer_id?.toString() || "";
+  return (
+    customerName.toLowerCase().includes(search.toLowerCase()) ||
+    c.date.toString().toLowerCase().includes(search.toLowerCase())
+  );
+});
+
+const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/cus_receipts/${id}`);
+      setPayments(payments.filter((p) => p._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+    
   return (
      <div className="container mt-4">
       <h3 className="mb-4 fw-bold"><span className='text-success'><MdAttachMoney/></span>CUSTOMER PAYMENT RECEIPT</h3>
@@ -53,7 +74,7 @@ const Customer_Payment = () => {
 
         <div className="col-md-6">
           <label className="form-label">Customer <span className="text-danger">*</span></label>
-          <select className="form-select bg-light" name ="customer_id"  value={form.customer_id} onChange={handleChange}>
+          <select className="form-select bg-light" name ="customer_id"  value={form.customer_id} onChange={handleChange} required>
             <option>-- Select Customer --</option>
             {customers.map(c=>(<option key={c._id} value={c._id}>{c.name}</option>))}
          
@@ -62,17 +83,17 @@ const Customer_Payment = () => {
 
         <div className="col-md-6">
           <label className="form-label">Date <span className="text-danger">*</span></label>
-          <input type="datetime-local" className="form-control bg-light" name="date" value={form.date} onChange={handleChange} />
+          <input type="datetime-local" className="form-control bg-light" name="date" value={form.date} onChange={handleChange} required />
         </div>
 
         <div className="col-md-6">
-          <label className="form-label">Amount (₹) *</label>
-          <input type="number" className="form-control bg-light" name="amount" value={form.amount} onChange={handleChange} placeholder="Enter amount" />
+          <label className="form-label">Amount (₹) <span className="text-danger">*</span></label>
+          <input type="number" className="form-control bg-light" name="amount" value={form.amount} onChange={handleChange} placeholder="Enter amount" required/>
         </div>
 
         <div className="col-md-6">
           <label className="form-label">Payment Mode <span className="text-danger">*</span></label>
-          <select className="form-select bg-light " name="mode" value={form.mode} onChange={handleChange}>
+          <select className="form-select bg-light " name="mode" value={form.mode} onChange={handleChange} required>
             <option>-- Select Mode --</option>
             <option>Cash</option>
             <option>UPI</option>
@@ -109,6 +130,10 @@ const Customer_Payment = () => {
         <div className=" card shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">Payment Tree</h5>
+          <div className="mt-4 mb-2 input-group">
+                                            <input type="text" className="form-control" placeholder="Search Customer name" value={search} onChange={(e) => setSearch(e.target.value)} />
+                                            <span className="input-group-text"><FaSearch /></span>
+                                        </div>
       <table className="table table-bordered table-striped mt-4">
   <thead className="table-dark">
     <tr>
@@ -120,21 +145,40 @@ const Customer_Payment = () => {
       <th className="fw-bold">Ref No</th>
       <th className="fw-bold">Invoice</th>
       <th className="fw-bold">Notes</th>
+      <th className="fw-bold">Actions</th>
     
     </tr>
   </thead>
   <tbody>
-    {payments.map((p)=>(
+    {filteredpayments.length === 0 ? (
+                                <tr>
+                                    <td colSpan="11" className="text-center">
+                                        No payments found.
+                                    </td>
+                                </tr>
+                            ) : (
+    payments.map((p)=>(
       <tr key={p._id}>
-        <td>{p.customer_id.name}</td>
+        <td>{p.customer_id?.name || "Unknown Customer" }</td>
         <td>{p.date}</td>
         <td>{p.amount}</td>
         <td>{p.mode}</td>
         <td>{p.reference_no}</td>
         <td>{p.applied_invoice_id}</td>
         <td>{p.notes}</td>
+        <td>
+                            <button
+                              className="btn btn-danger btn-sm"
+                              onClick={() => handleDelete(p._id)}
+                            >
+                              <span className="text-warning">
+                                <MdDeleteForever />
+                              </span>
+                              Delete
+                            </button>
+                          </td>
       </tr>
-    ))}
+    )))}
   </tbody>
   </table></div></div>
     </div>

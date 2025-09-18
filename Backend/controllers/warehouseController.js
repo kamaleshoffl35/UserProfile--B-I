@@ -20,3 +20,15 @@ exports.addWarehouse=async (req,res) => {
         res.status(500).json({error:err.message})
     }
 }
+
+exports.deleteWarehouse= async(req,res)=>{
+  try{
+    const deleted=await Warehouse.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({message:"Warehouse not found" });
+    }
+    res.json({ message: "Warehouse deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

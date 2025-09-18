@@ -3,6 +3,8 @@ import axios from "axios";
 import { PiShippingContainer } from "react-icons/pi";
 import { MdDelete } from "react-icons/md";
 import { FaSave } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
 
 const StockAdjustment = () => {
     const [warehouses, setWarehouses] = useState([]);
@@ -76,6 +78,33 @@ const StockAdjustment = () => {
         }
     };
 
+    const [search, setSearch] = useState("")
+
+    const filteredstocks = stocksadjust.filter((s) => {
+        const warehousename = s.warehouse_id?.store_name || warehouses.find((w) => w._id === s.warehouse_id)?.store_name || "";
+        const productNames = s.items.map((item) =>
+            products.find((p) => p._id === item.product_id)?.name || "Unknown"
+        )
+            .join(" ");
+
+        return (
+            warehousename.toLowerCase().includes(search.trim().toLowerCase()) ||
+            productNames.toLowerCase().includes(search.trim().toLowerCase()) ||
+            s.reason?.toLowerCase().includes(search.trim().toLowerCase()) ||
+            s.date?.toString().toLowerCase().includes(search.trim().toLowerCase())
+        );
+    });
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/stocksadj/${id}`);
+            setStocksadjust(stocksadjust.filter((s) => s._id !== id));
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     return (
         <div className="container mt-4">
             <h3 className="mb-4"><span className="me-2 text-success"><PiShippingContainer /></span> <b>STOCK ADJUSTMENT</b></h3>
@@ -131,7 +160,7 @@ const StockAdjustment = () => {
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="batch" value={item.batch} className="form-control" placeholder="Batch No" onChange={(e) => handleItemChange(index, e)} />
+                                    <input type="number" name="batch" value={item.batch} className="form-control" placeholder="Batch No" onChange={(e) => handleItemChange(index, e)} />
                                 </td>
                                 <td>
                                     <input type="number" name="qty" value={item.qty} className="form-control" placeholder="± Qty" onChange={(e) => handleItemChange(index, e)} required />
@@ -158,33 +187,63 @@ const StockAdjustment = () => {
             <div className=" card shadow-sm">
                 <div className="card-body">
                     <h5 className="mb-3">Adjustment Tree</h5>
+                    <div className="mt-4 mb-2 input-group">
+                        <input type="text" className="form-control" placeholder="Search warehouse name" value={search} onChange={(e) => setSearch(e.target.value)} />
+                        <span className="input-group-text"><FaSearch /></span>
+                    </div>
                     <table className="table table-bordered table-striped">
                         <thead className="table-dark">
                             <tr>
-                                <th>Warehouse</th>
-                                <th>Reason</th>
-                                <th>Date</th>
-                                <th>Notes</th>
-                                <th>Items</th>
+                                <th className="fw-bold">Warehouse</th>
+                                <th className="fw-bold">Reason</th>
+                                <th className="fw-bold">Date</th>
+                                <th className="fw-bold">Notes</th>
+                                <th className="fw-bold">Items</th>
+                                <th className="fw-bold">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {stocksadjust.map((s, index) => (
-                                <tr key={index}>
-                                    <td>{s.warehouse_id?.store_name || s.warehouse_id}</td>
-                                    <td>{s.reason}</td>
-                                    <td>{new Date(s.date).toLocaleString()}</td>
-                                    <td>{s.notes}</td>
-                                    <td>
-                                        {s.items.map((item, idx) => (
-                                            <div key={idx}>
-                                                {products.find(p => p._id === item.product_id)?.name || item.product_id} — Qty: {item.qty}
-                                            </div>
-                                        ))}
+                            {filteredstocks.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="text-center">
+                                        No stocks found.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredstocks.map((s, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            {s.warehouse_id?.store_name || warehouses.find((w) => w._id === s.warehouse_id)?.store_name || "Unknown"}
+                                        </td>
+                                        <td>{s.reason}</td>
+                                        <td>{new Date(s.date).toLocaleString()}</td>
+                                        <td>{s.notes}</td>
+                                        <td>
+                                            {s.items.map((item, idx) => (
+                                                <div key={idx}>
+                                                    {products.find((p) => p._id === item.product_id)?.name ||
+                                                        "Unknown"}{" "}
+                                                    — Qty: {item.qty}
+                                                </div>
+
+                                            ))}
+                                        </td>
+                                        <td>
+                                            <button
+                                                className="btn btn-danger btn-sm"
+                                                onClick={() => handleDelete(s._id)}
+                                            >
+                                                <span className="text-warning">
+                                                    <MdDeleteForever />
+                                                </span>
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
+
                     </table></div></div>
         </div>
     );

@@ -2,53 +2,75 @@ import React, { useEffect, useState } from 'react'
 import { FaRegSave } from "react-icons/fa";
 import { GrPowerReset } from "react-icons/gr";
 import { GiTakeMyMoney } from "react-icons/gi";
+import { MdDeleteForever } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 import axios from 'axios';
 
 const Supplier_Payment = () => {
   const [suppliers, setSupplier] = useState([])
-    const [payments,setPayment] = useState([])
-    const [form,setForm] = useState({
-        supplier_id:"",
-       
-        date:new Date().toISOString().slice(0, 16),
-        amount:"",
-        mode:"",
-        reference_no:"",
-        applied_purchase_id:"",
-        notes:"",
-    })
-    useEffect(()=>{
-      axios.get("http://localhost:5000/api/suppliers")
-      .then(res=>setSupplier(res.data))
+  const [payments, setPayment] = useState([])
+  const [form, setForm] = useState({
+    supplier_id: "",
 
-      axios.get("http://localhost:5000/api/sup_receipts")
-      .then(res=>setPayment(res.data))
-      .catch(err=>console.error(err))
-    },[])
-    const handleChange =(e)=>{
-        const {name,value} = e.target
-        setForm({...form,[name]:value})
+    date: new Date().toISOString().slice(0, 16),
+    amount: "",
+    mode: "",
+    reference_no: "",
+    applied_purchase_id: "",
+    notes: "",
+  })
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/suppliers")
+      .then(res => setSupplier(res.data))
+
+    axios.get("http://localhost:5000/api/sup_receipts")
+      .then(res => setPayment(res.data))
+      .catch(err => console.error(err))
+  }, [])
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm({ ...form, [name]: value })
+  }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await axios.post("http://localhost:5000/api/sup_receipts", form)
+      setPayment([...payments, res.data])
+      setForm({
+        supplier_id: "",
+
+        date: new Date().toISOString().slice(0, 16),
+        amount: "",
+        mode: "",
+        reference_no: "",
+        applied_purchase_id: "",
+        notes: "",
+      })
     }
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try{
-          const res = await axios.post("http://localhost:5000/api/sup_receipts",form)
-            setPayment([...payments,res.data])
-            setForm({
-                supplier_id:"",
-              
-                date:new Date().toISOString().slice(0, 16),
-                amount:"",
-                mode:"",
-                reference_no:"",
-                applied_purchase_id:"",
-                notes:"",
-            })
-        }
-        catch(err){
-            console.error(err.response?.data || err.message)
-        }
+    catch (err) {
+      console.error(err.response?.data || err.message)
     }
+  }
+
+  const [search, setSearch] = useState("");
+  const filteredpayments = payments.filter((s) => {
+    const supplierName = s.supplier_id?.name || s.supplier_id?.toString() || "";
+    return (
+      supplierName.toLowerCase().includes(search.toLowerCase()) ||
+      s.date.toString().toLowerCase().includes(search.toLowerCase())
+    );`1`
+  });
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/sup_receipts/${id}`);
+      setPayment(payments.filter((p) => p._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
   return (
     <div className="container mt-4">
       <h3 className="mb-4"><span className="me-2 text-success"><GiTakeMyMoney /></span><b>SUPPILER PAYMENT RECEIPT</b></h3>
@@ -57,8 +79,8 @@ const Supplier_Payment = () => {
           <label className="form-label">Supplier <span className="text-danger">*</span></label>
           <select className="form-select bg-light" name="supplier_id" value={form.supplier_id} onChange={handleChange}>
             <option value="">-- Select Supplier --</option>
-            {suppliers.map(s=>(<option key={s._id} value={s._id}>{s.name}</option>))}
-            
+            {suppliers.map(s => (<option key={s._id} value={s._id}>{s.name}</option>))}
+
           </select>
         </div>
         <div className="col-md-6">
@@ -70,14 +92,14 @@ const Supplier_Payment = () => {
           <label className="form-label">Amount (₹) <span className="text-danger">*</span></label>
           <div className="input-group">
             <span className="input-group-text">₹</span>
-            <input type="number" className="form-control bg-light" placeholder="Enter amount" name="amount" value={form.amount} onChange={handleChange}/>
+            <input type="number" className="form-control bg-light" placeholder="Enter amount" name="amount" value={form.amount} onChange={handleChange} />
           </div>
         </div>
 
         {/* Payment Mode */}
         <div className="col-md-6">
           <label className="form-label">Payment Mode <span className="text-danger">*</span></label>
-          <select className="form-select bg-light" name="mode" value={form.mode}  onChange={handleChange}>
+          <select className="form-select bg-light" name="mode" value={form.mode} onChange={handleChange}>
             <option value="">-- Select Mode --</option>
             <option value="cash">Cash</option>
             <option value="upi">UPI</option>
@@ -128,36 +150,58 @@ const Supplier_Payment = () => {
       <div className=" card shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">Payment Tree</h5>
-      <table className="table table-bordered table-striped mt-4">
-  <thead className="table-dark">
-    <tr>
-      <th className="fw-bold">Supplier</th>
-      <th className="fw-bold">Date</th>
-      <th className="fw-bold">Amount</th>
-      
-      <th className="fw-bold">Payment Mode</th>
-      <th className="fw-bold">Ref No</th>
-      <th className="fw-bold">Invoice</th>
-      <th className="fw-bold">Notes</th>
-    
-    </tr>
-  </thead>
-  <tbody>
-    {payments.map(p=>(
-      <tr key={p._id}>
-          <td>{p.supplier_id?.name}</td>
-          <td>{p.date}</td>
-          <td>{p.amount}</td>
-          <td>{p.mode}</td>
-          <td>{p.reference_no}</td>
-          <td>{p.applied_purchase_id}</td>
-          <td>{p.notes}</td>
-      </tr>
-    ))}
-  </tbody>
-  </table></div></div>
+          <div className="mt-4 mb-2 input-group">
+            <input type="text" className="form-control" placeholder="Search Customer name" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <span className="input-group-text"><FaSearch /></span>
+          </div>
+          <table className="table table-bordered table-striped mt-4">
+            <thead className="table-dark">
+              <tr>
+                <th className="fw-bold">Supplier</th>
+                <th className="fw-bold">Date</th>
+                <th className="fw-bold">Amount</th>
+
+                <th className="fw-bold">Payment Mode</th>
+                <th className="fw-bold">Ref No</th>
+                <th className="fw-bold">Invoice</th>
+                <th className="fw-bold">Notes</th>
+                  <th className="fw-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredpayments.length === 0 ? (
+                <tr>
+                  <td colSpan="11" className="text-center">
+                    No payments found.
+                  </td>
+                </tr>
+              ) : (
+                payments.map(p => (
+                  <tr key={p._id}>
+                    <td>{p.supplier_id?.name}</td>
+                    <td>{p.date}</td>
+                    <td>{p.amount}</td>
+                    <td>{p.mode}</td>
+                    <td>{p.reference_no}</td>
+                    <td>{p.applied_purchase_id}</td>
+                    <td>{p.notes}</td>
+                    <td>
+                                                <button
+                                                  className="btn btn-danger btn-sm"
+                                                  onClick={() => handleDelete(p._id)}
+                                                >
+                                                  <span className="text-warning">
+                                                    <MdDeleteForever />
+                                                  </span>
+                                                  Delete
+                                                </button>
+                                              </td>
+                  </tr>
+                )))}
+            </tbody>
+          </table></div></div>
     </div>
-    
+
   )
 }
 

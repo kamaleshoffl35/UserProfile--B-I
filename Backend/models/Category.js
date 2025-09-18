@@ -6,7 +6,10 @@ const categorySchema = new mongoose.Schema(
     name: { type: String, required: true },
     subcategory: { type: String, default: "" },
     code: { type: String, required: true },
-    brand: { type: String },
+    brands: [
+    {
+      name: { type: String, required: true }
+    }],
     status: { type: Boolean, default: true },
   },
   { timestamps: true }

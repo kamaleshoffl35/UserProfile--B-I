@@ -3,28 +3,30 @@ import axios from "axios";
 import { BiPurchaseTag } from "react-icons/bi";
 import { MdDeleteForever } from "react-icons/md";
 import { FaRegSave } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+
 
 const Purchase = () => {
-    const [suppliers,setSuppliers]=useState([]);
-    const [warehouses,setWarehouses]=useState([]);
-    const [products,setProducts]=useState([]);
-    const [purchase,setPurchase]=useState({
-        supplier_id:"",
-        invoice_no:"",
-        invoice_date:"",
-        warehouse_id:"",
-        items:[{product_id:"",batch_no:"",mfg_date:"",exp_date:"",qty:0,unit_price:0,discount:0,tax:0,line_total:0}],
-        subtotal:0,
-        discount_amount:0,
-        other_charges:0,
-        round_off:0,
-        grand_total:0,
-        paid_amount:0,
-        due_amount:0,
-        payment_mode:"",
-        notes:""
+    const [suppliers, setSuppliers] = useState([]);
+    const [warehouses, setWarehouses] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [purchase, setPurchase] = useState({
+        supplier_id: "",
+        invoice_no: "",
+        invoice_date: "",
+        warehouse_id: "",
+        items: [{ product_id: "", batch_no: "", mfg_date: "", exp_date: "", qty: 0, unit_price: 0, discount: 0, tax: 0, line_total: 0 }],
+        subtotal: 0,
+        discount_amount: 0,
+        other_charges: 0,
+        round_off: 0,
+        grand_total: 0,
+        paid_amount: 0,
+        due_amount: 0,
+        payment_mode: "",
+        notes: ""
     });
-    const [purchaseList,setPurchaseList]=useState([]);
+    const [purchaseList, setPurchaseList] = useState([]);
 
     useEffect(() => {
         axios.get("http://localhost:5000/api/suppliers")
@@ -39,42 +41,42 @@ const Purchase = () => {
     }, []);
 
     const handleChange = (e) => {
-        const {name,value}=e.target;
-        setPurchase({...purchase,[name]:value});
+        const { name, value } = e.target;
+        setPurchase({ ...purchase, [name]: value });
     };
 
     const handleItemChange = (index, e) => {
-        const {name,value}=e.target;
-        const items=[...purchase.items];
-        items[index][name]=value;
-        setPurchase({ ...purchase,items});
+        const { name, value } = e.target;
+        const items = [...purchase.items];
+        items[index][name] = value;
+        setPurchase({ ...purchase, items });
     };
 
     const addItem = () => {
         setPurchase({
             ...purchase,
-            items:[...purchase.items,{ product_id:"",batch_no:"",mfg_date:"",exp_date:"",qty:0,unit_price:0,discount:0,tax:0,line_total:0}]
+            items: [...purchase.items, { product_id: "", batch_no: "", mfg_date: "", exp_date: "", qty: 0, unit_price: 0, discount: 0, tax: 0, line_total: 0 }]
         });
     };
 
     const removeItem = (index) => {
-        if(purchase.items.length === 1) {
+        if (purchase.items.length === 1) {
             alert("At least one item is required.");
             return;
         }
-        const items=[...purchase.items];
+        const items = [...purchase.items];
         items.splice(index, 1);
         setPurchase({ ...purchase, items });
     };
 
     const calculateTotals = () => {
-        let subtotal=0;
+        let subtotal = 0;
         purchase.items.forEach(item => {
-            const lineTotal=
+            const lineTotal =
                 (Number(item.qty) || 0) * (Number(item.unit_price) || 0) -
                 (Number(item.discount) || 0) +
                 (Number(item.tax) || 0);
-            subtotal+=lineTotal;
+            subtotal += lineTotal;
         });
 
         const discount_amount = Number(purchase.discount_amount || 0);
@@ -98,30 +100,44 @@ const Purchase = () => {
         calculateTotals();
         try {
             const res = await axios.post("http://localhost:5000/api/purchases", purchase);
-           
-            
-             setPurchaseList([...purchaseList, res.data]);
-        setPurchase({
-            supplier_id:"",
-            invoice_no:"",
-            invoice_date:"",
-            warehouse_id:"",
-            items:[{product_id:"",batch_no:"",mfg_date:"",exp_date:"",qty:0,unit_price:0,discount:0,tax:0,line_total:0}],
-            subtotal:0,
-            discount_amount:0,
-            other_charges:0,
-            round_off:0,
-            grand_total:0,
-            paid_amount:0,
-            due_amount:0,
-            payment_mode:"",
-            notes:""
-        });
+
+
+            setPurchaseList([...purchaseList, res.data]);
+            setPurchase({
+                supplier_id: "",
+                invoice_no: "",
+                invoice_date: "",
+                warehouse_id: "",
+                items: [{ product_id: "", batch_no: "", mfg_date: "", exp_date: "", qty: 0, unit_price: 0, discount: 0, tax: 0, line_total: 0 }],
+                subtotal: 0,
+                discount_amount: 0,
+                other_charges: 0,
+                round_off: 0,
+                grand_total: 0,
+                paid_amount: 0,
+                due_amount: 0,
+                payment_mode: "",
+                notes: ""
+            });
         } catch (err) {
             console.error(err.response?.data || err.message);
         }
     };
 
+    const [search, setSearch] = useState("");
+    const filteredpurchase = purchaseList.filter((p) =>
+        (p.supplier_id?.name || p.supplier_id || "").toString().toLowerCase().includes(search.toLowerCase()) ||
+        (p.invoice_no || "").toString().toLowerCase().includes(search.toLowerCase()) ||
+        (p.items?.some(item => products.find(prod => prod._id === item.product_id)?.name?.toLowerCase().includes(search.toLowerCase())))
+    );
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/purchases/${id}`);
+            setPurchase(purchase.filter((c) => c._id !== id));
+        } catch (err) {
+            console.error(err);
+        }
+    };
     return (
         <div className="container mt-4 bg-gradient-warning">
             <h3 className="mb-4">
@@ -169,41 +185,48 @@ const Purchase = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {purchase.items.map((item, index) => (
-                                <tr key={index}>
-                                    <td>
-                                        <select name="product_id" value={item.product_id} className="form-select" onChange={(e) => handleItemChange(index, e)} required>
-                                            <option value="">Select Product</option>
-                                            {products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-                                        </select>
-                                    </td>
-                                    <td><input name="batch_no" value={item.batch_no} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td><input type="date" name="mfg_date" value={item.mfg_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td><input type="date" name="exp_date" value={item.exp_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td><input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td><input type="number" name="unit_price" value={item.unit_price} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td><input type="number" name="discount" value={item.discount} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td><input type="number" name="tax" value={item.tax} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                    <td>
-                                        <input
-                                            type="number"
-                                            name="line_total"
-                                            value={(
-                                                (Number(item.qty) || 0) * (Number(item.unit_price) || 0) -
-                                                (Number(item.discount) || 0) +
-                                                (Number(item.tax) || 0)
-                                            ).toFixed(2)}
-                                            className="form-control"
-                                            disabled
-                                        />
-                                    </td>
-                                    <td>
-                                        <button type="button" className="btn btn-danger btn-sm" onClick={() => removeItem(index)}>
-                                            <span className="text-warning"><MdDeleteForever /></span>Delete
-                                        </button>
+                            {filteredpurchase.length === 0 ? (
+                                <tr>
+                                    <td colSpan="11" className="text-center">
+                                        No purchases found.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                purchase.items.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <select name="product_id" value={item.product_id} className="form-select" onChange={(e) => handleItemChange(index, e)} required>
+                                                <option value="">Select Product</option>
+                                                {products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+                                            </select>
+                                        </td>
+                                        <td><input name="batch_no" value={item.batch_no} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td><input type="date" name="mfg_date" value={item.mfg_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td><input type="date" name="exp_date" value={item.exp_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td><input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td><input type="number" name="unit_price" value={item.unit_price} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td><input type="number" name="discount" value={item.discount} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td><input type="number" name="tax" value={item.tax} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                name="line_total"
+                                                value={(
+                                                    (Number(item.qty) || 0) * (Number(item.unit_price) || 0) -
+                                                    (Number(item.discount) || 0) +
+                                                    (Number(item.tax) || 0)
+                                                ).toFixed(2)}
+                                                className="form-control"
+                                                disabled
+                                            />
+                                        </td>
+                                        <td>
+                                            <button type="button" className="btn btn-danger btn-sm" onClick={() => removeItem(index)}>
+                                                <span className="text-warning"><MdDeleteForever /></span>Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )))}
                         </tbody>
                     </table>
                     <button type="button" className="btn btn-primary btn-sm" onClick={addItem}>+ Add Item</button>
@@ -258,51 +281,62 @@ const Purchase = () => {
                 </div>
             </form><br />
 
-           <div className=" card shadow-sm">
+            <div className=" card shadow-sm">
                 <div className="card-body">
                     <h5 className="mb-3">Purchase Tree</h5>
-            <table className="table table-bordered table-striped">
-                <thead className="table-dark">
-                    <tr>
-                        <th className="fw-bold">Supplier</th>
-                        <th className="fw-bold">Invoice No</th>
-                        <th className="fw-bold">Invoice Date</th>
-                        <th className="fw-bold">Store Name</th>
-                        <th className="fw-bold">Products</th>
-                        <th className="fw-bold">Subtotal</th>
-                        <th className="fw-bold">Other Charges</th>
-                        <th className="fw-bold">Grand Total</th>
-                        <th className="fw-bold">Paid</th>
-                        <th className="fw-bold">Due</th>
-                        <th className="fw-bold">Payment Mode</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {purchaseList.map((p, index) => (
-                        <tr key={index}>
-                            <td>{p.supplier_id?.name || p.supplier_id}</td>
-                            <td>{p.invoice_no}</td>
-                            <td>{p.invoice_date}</td>
-                            <td>{p.warehouse_id?.store_name || p.warehouse_id}</td>
-                            <td>
-                                {p.items.map((item, idx) => (
-                                    <div key={idx}>
-                                        {products.find(prod => prod._id === item.product_id)?.name || item.product_id} ({item.qty})
-                                    </div>
-                                ))}
-                            </td>
-                            <td>{p.subtotal}</td>
-                            <td>{p.other_charges}</td>
-                            <td>{p.grand_total}</td>
-                            <td>{p.paid_amount}</td>
-                            <td>{p.due_amount}</td>
-                            <td>{p.payment_mode}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-        </div>
+                    <div className="mt-4 mb-2 input-group">
+                        <input type="text" className="form-control" placeholder="Search Customer, name, email" value={search} onChange={(e) => setSearch(e.target.value)} />
+                        <span className="input-group-text"><FaSearch /></span>
+                    </div>
+                    <table className="table table-bordered table-striped">
+                        <thead className="table-dark">
+                            <tr>
+                                <th className="fw-bold">Supplier</th>
+                                <th className="fw-bold">Invoice No</th>
+                                <th className="fw-bold">Invoice Date</th>
+                                <th className="fw-bold">Store Name</th>
+                                <th className="fw-bold">Products</th>
+                                <th className="fw-bold">Subtotal</th>
+                                <th className="fw-bold">Other Charges</th>
+                                <th className="fw-bold">Grand Total</th>
+                                <th className="fw-bold">Paid</th>
+                                <th className="fw-bold">Due</th>
+                                <th className="fw-bold">Payment Mode</th>
+                                <th className="fw-bold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredpurchase.map((p, index) => (
+                                <tr key={index}>
+                                    <td>{p.supplier_id?.name || p.supplier_id}</td>
+                                    <td>{p.invoice_no}</td>
+                                    <td>{p.invoice_date}</td>
+                                    <td>{p.warehouse_id?.store_name || p.warehouse_id}</td>
+                                    <td>
+                                        {p.items.map((item, idx) => (
+                                            <div key={idx}>
+                                                {item.product_id?.name || "Unknown Product"} ({item.qty})
+                                            </div>
+                                        ))}
+                                    </td>
+                                    <td>{p.subtotal}</td>
+                                    <td>{p.other_charges}</td>
+                                    <td>{p.grand_total}</td>
+                                    <td>{p.paid_amount}</td>
+                                    <td>{p.due_amount}</td>
+                                    <td>{p.payment_mode}</td>
+                                    <td><button className="btn btn-danger btn-sm" onClick={() => handleDelete(p._id)}>
+                                        <span className="text-warning">
+                                            <MdDeleteForever />
+                                        </span>
+                                        Delete
+                                    </button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 };

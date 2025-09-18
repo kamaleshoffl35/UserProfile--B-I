@@ -24,3 +24,15 @@ exports.addSalePOS = async (req, res) => {
         res.status(400).json({ error: err.message })
     }
 }
+
+exports.deleteSale= async(req,res)=>{
+  try{
+    const deleted=await Sale.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({message:"Sale not found" });
+    }
+    res.json({ message: "Sale deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

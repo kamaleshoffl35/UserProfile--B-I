@@ -20,3 +20,15 @@ exports.addCustomer = async (req,res) => {
   res.status(400).json({error:err.message})
  }
 }
+
+exports.deleteCustomer= async(req,res)=>{
+  try{
+    const deleted=await Customer.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({message:"Customer not found" });
+    }
+    res.json({ message: "Customer deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

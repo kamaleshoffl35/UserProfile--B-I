@@ -21,3 +21,15 @@ exports.addSaleReport = async (req,res) => {
         res.status(500).json({error:err.message})
     }
 }
+
+exports.deleteSaleReport= async(req,res)=>{
+  try{
+    const deleted=await Salereport.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({message:"Reports not found" });
+    }
+    res.json({ message: "Reports deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { TbFileInvoice } from "react-icons/tb";
 import { FaRegSave, FaWhatsapp } from "react-icons/fa";
 import { TfiHandStop } from "react-icons/tfi";
+import { MdDeleteForever } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 
 const SalePOS = () => {
   const [customers, setCustomers] = useState([])
@@ -159,6 +161,29 @@ const SalePOS = () => {
     }
   }
 
+  const [search, setSearch] = useState("");
+  const filteredsales = sales.filter(
+    (s) => {
+      const customerName = s.customer_id?.name || s.customer_id || "";
+      const counter = s.counter_id || "";
+
+      return (
+        customerName.toString().toLowerCase().includes(search.toLowerCase()) ||
+        counter.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+  )
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/sales/${id}`);
+      setSales(sales.filter((s) => s._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
   return (
     <div className="container mt-4 bg-gradient-warning">
       <h3 className="mb-4"><span className="text-success"><TbFileInvoice /></span>  <b>SALES INVOICE/POS</b></h3>
@@ -173,7 +198,7 @@ const SalePOS = () => {
           </div>
           <div className="col-md-3">
             <label>Invoice Date</label>
-            <input type="date" name="invoice_date_time" value={form.invoice_date_time} onChange={handleChange} className="form-control bg-light" />
+            <input type="date" name="invoice_date_time" value={form.invoice_date_time} onChange={handleChange} className="form-control bg-light" required />
           </div>
           <div className="col-md-3">
             <label>Counter</label>
@@ -258,54 +283,77 @@ const SalePOS = () => {
         </div>
       </form><br />
 
-       <div className=" card shadow-sm">
+      <div className=" card shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">SalesItems Tree</h5>
-      <table className="table table-bordered table-striped mt-4">
-        <thead className="table-dark">
-          <tr>
-            <th className="fw-bold">Customer</th>
-            <th className="fw-bold">Invoice No</th>
-            <th className="fw-bold">Invoice Date</th>
-            <th className="fw-bold">Counter</th>
-            <th className="fw-bold">Payment Mode</th>
-            <th className="fw-bold">Products</th>
-            <th className="fw-bold">Subtotal</th>
-            <th className="fw-bold">Discount</th>
-            <th className="fw-bold">Tax</th>
-            <th className="fw-bold">Grand Total</th>
+          <div className="mt-4 mb-2 input-group">
+            <input type="text" className="form-control" placeholder="Search Customer name, Counter" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <span className="input-group-text"><FaSearch /></span>
+          </div>
+          <table className="table table-bordered table-striped mt-4">
+            <thead className="table-dark">
+              <tr>
+                <th className="fw-bold">Customer</th>
+                <th className="fw-bold">Invoice No</th>
+                <th className="fw-bold"> Date</th>
+                <th className="fw-bold">Counter</th>
+                <th className="fw-bold"> Mode</th>
+                <th className="fw-bold">Products</th>
+                <th className="fw-bold">Subtotal</th>
+                <th className="fw-bold">Discount</th>
+                <th className="fw-bold">Tax</th>
+                <th className="fw-bold">Grand Total</th>
 
-            <th className="fw-bold">Due Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sales.map((s, index) => (
-            <tr key={index}>
-              <td>{s.customer_id?.name || "Unknown Customer"}</td>
-              <td>{s.invoice_no}</td>
-              <td>{s.invoice_date_time?.slice(0, 10) || ""}</td>
-              <td>{s.counter_id || ""}</td>
-              <td>{s.payment_mode || ""}</td>
-              <td>
-                {s.items.map((item, idx) => {
-                  const productName = item.product_id?.name || "Unknown Product";
-                  return (
-                    <div key={idx}>
-                      {productName} ({item.qty})
-                    </div>
-                  );
-                })}
-              </td>
-              <td>{s.subtotal?.toFixed(2) || "0.00"}</td>
-              <td>{s.discount_amount?.toFixed(2) || "0.00"}</td>
-              <td>{s.tax_amount?.toFixed(2) || "0.00"}</td>
-              <td>{s.grand_total?.toFixed(2) || "0.00"}</td>
+                <th className="fw-bold">Due Amount</th>
+                <th className="fw-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredsales.length === 0 ? (
+                <tr>
+                  <td colSpan="11" className="text-center">
+                    No sales found.
+                  </td>
+                </tr>
+              ) : (
+                sales.map((s, index) => (
+                  <tr key={index}>
+                    <td>{s.customer_id?.name || "Unknown Customer"}</td>
+                    <td>{s.invoice_no}</td>
+                    <td>{s.invoice_date_time?.slice(0, 10) || ""}</td>
+                    <td>{s.counter_id || ""}</td>
+                    <td>{s.payment_mode || ""}</td>
+                    <td>
+                      {s.items.map((item, idx) => {
+                        const productName = item.product_id?.name || "Unknown Product";
+                        return (
+                          <div key={idx}>
+                            {productName} ({item.qty})
+                          </div>
+                        );
+                      })}
+                    </td>
+                    <td>{s.subtotal?.toFixed(2) || "0.00"}</td>
+                    <td>{s.discount_amount?.toFixed(2) || "0.00"}</td>
+                    <td>{s.tax_amount?.toFixed(2) || "0.00"}</td>
+                    <td>{s.grand_total?.toFixed(2) || "0.00"}</td>
 
-              <td>{s.due_amount?.toFixed(2) || "0.00"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table></div></div>
+                    <td>{s.due_amount?.toFixed(2) || "0.00"}</td>
+                    <td>
+                                        <button
+                                          className="btn btn-danger btn-sm"
+                                          onClick={() => handleDelete(s._id)}
+                                        >
+                                          <span className="text-warning">
+                                            <MdDeleteForever />
+                                          </span>
+                                          Delete
+                                        </button>
+                                      </td>
+                  </tr>
+                )))}
+            </tbody>
+          </table></div></div>
 
     </div>
   )

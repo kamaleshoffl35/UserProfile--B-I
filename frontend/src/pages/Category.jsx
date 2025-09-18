@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { MdOutlineCategory } from "react-icons/md";
 import { RiFunctionAddLine } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
@@ -71,6 +72,14 @@ const handleSubmit = async (e) => {
       console.error(err.response?.data || err.message);
     }
   };
+  const [search, setSearch] = useState("");
+  const filteredCategories = categories.filter(
+        (c) =>
+            c.name.toLowerCase().includes(search.toLowerCase()) ||
+            c.code.toLowerCase().includes(search.toLowerCase()) ||
+            c.parental_id.toLowerCase().includes(search.toLowerCase())
+    );
+
 const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/categories/${id}`);
@@ -84,11 +93,11 @@ const handleDelete = async (id) => {
       <h2 className="mb-4"><span className="text-success"><MdOutlineCategory /></span>{" "}<b>CATEGORY MASTER</b></h2>
       <form className="row g-3" onSubmit={handleSubmit}>
         <div className="col-md-6">
-          <label className="form-label">Category ID</label>
-          <input type="text" className="form-control bg-light" name="parental_id" value={form.parental_id} onChange={handleChange} required/>
+          <label className="form-label">Category ID<span className="text-danger">*</span></label>
+          <input type="number" className="form-control bg-light" name="parental_id" value={form.parental_id} onChange={handleChange} required/>
         </div>
         <div className="col-md-6">
-          <label className="form-label">Category Name</label>
+          <label className="form-label">Category Name<span className="text-danger">*</span></label>
           <select className="form-control" name="name" value={form.name} onChange={handleChange} required>
             <option value="">-- Select Category --</option>
             {Object.keys(categoryData).map((cat) => (
@@ -104,8 +113,8 @@ const handleDelete = async (id) => {
         </div>
         {subcategories.length > 0 && (
           <div className="col-md-6">
-            <label className="form-label">Subcategory</label>
-            <select className="form-control" name="subcategory" value={form.subcategory} onChange={handleChange}>
+            <label className="form-label">Subcategory<span className="text-danger">*</span></label>
+            <select className="form-control" name="subcategory" value={form.subcategory} onChange={handleChange} required>
               <option value="">Select Subcategory</option>
               {subcategories.map((sub, index) => (
                 <option key={index} value={sub}>
@@ -142,6 +151,10 @@ const handleDelete = async (id) => {
       <div className=" card shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">Category Tree</h5>
+          <div className="mt-4 mb-2 input-group">
+                                  <input type="text" className="form-control" placeholder="Search Category code, Category name" value={search} onChange={(e) => setSearch(e.target.value)} />
+                                  <span className="input-group-text"><FaSearch /></span>
+                              </div>
           <table className="table table-bordered table-striped">
             <thead className="table-dark">
               <tr>
@@ -154,8 +167,14 @@ const handleDelete = async (id) => {
                 <th className="fw-bold">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {categories.map((c) => (
+            <tbody>{filteredCategories.length === 0 ? (
+                                <tr>
+                                    <td colSpan="11" className="text-center">
+                                        No categories found.
+                                    </td>
+                                </tr>
+                            ) : (
+              filteredCategories.map((c) => (
                 <tr key={c._id}>
                   <td>{c.parental_id}</td>
                   <td>{c.name}</td>
@@ -176,9 +195,10 @@ const handleDelete = async (id) => {
                       Delete
                     </button>
                   </td>
-                </tr>
-              ))}
-            </tbody>
+                </tr>)
+              ))
+} 
+</tbody>
           </table>
         </div>
       </div>
