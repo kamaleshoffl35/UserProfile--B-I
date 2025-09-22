@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Product from "./pages/Product";
@@ -19,6 +20,14 @@ import Reports from "./pages/Reports";
 import PurchaseReport from "./pages/reports/PurchaseReport";
 import StockReport from "./pages/reports/StockReport";
 import GstReport from "./pages/reports/GSTReport";
+import Login from "./pages/Login"
+import Profile from "./pages/Profile"
+import Register from "./pages/Register"
+
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem("user"); 
+  return user ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
@@ -26,7 +35,9 @@ function App() {
       
       <div className="container-fluid w-100 p-0">
         <Routes>
-          <Route path="/" element={<Dashboard/>}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<protectedRoute>{<Dashboard/>}</protectedRoute>}>
           
           <Route path="/products" element={<Product />} />
           <Route path="/categories" element={<Category />} />
@@ -40,13 +51,16 @@ function App() {
            <Route path="/cus_receipts" element={<Customer_Payment/>} />
            <Route path="/sub_receipts" element={<Supplier_Payment/>} />
              <Route path="/stocks" element={<StockAdjustment/>} />
+             <Route path="/profile" element={<Profile/>}/>
               <Route path="/reports" element={<Reports />}>
+              <Route index element={<SalesReport/>}/>
             <Route path="sales" element={<SalesReport />} />
              <Route path="/reports/purchase" element={<PurchaseReport />}/>
              <Route path="/reports/stock" element={<StockReport />}/>
              <Route path="/reports/gst" element={<GstReport />}/>
             </Route>
             </Route>
+            <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </>

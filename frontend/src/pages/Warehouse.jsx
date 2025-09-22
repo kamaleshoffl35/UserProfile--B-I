@@ -71,7 +71,7 @@ const Warehouse = () => {
 
   return (
     <div className="container mt-4 bg-gradient-warning">
-      <h3 className="mb-4"><span className="text-success"><MdOutlineWarehouse /></span>  <b>WAREHOUSE MASTER</b></h3>
+      <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><MdOutlineWarehouse size={24} /></span>{" "}<b >WAREHOUSE MASTER</b></h2>
       <form className="row g-3" onSubmit={handleSubmit}>
 
         <div className="col-md-6">

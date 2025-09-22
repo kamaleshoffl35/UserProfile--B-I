@@ -65,7 +65,7 @@ const Tax = () => {
 
     return (
         <div className="container mt-4 bg-gradient-warning">
-            <h2 className="mb-4"><span className="text-success"><MdOutlineAttachMoney /></span><b>TAX MASTER</b></h2>
+            <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><MdOutlineAttachMoney size={24} /></span>{" "}<b >TAX MASTER</b></h2>
             <form className="row g-3" onSubmit={handleSubmit}>
 
                 <div className="col-md-6">

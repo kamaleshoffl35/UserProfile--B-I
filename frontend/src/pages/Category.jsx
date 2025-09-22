@@ -90,10 +90,10 @@ const handleDelete = async (id) => {
   };
  return (
     <div className="container mt-4 bg-gradient-warning">
-      <h2 className="mb-4"><span className="text-success"><MdOutlineCategory /></span>{" "}<b>CATEGORY MASTER</b></h2>
+      <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><MdOutlineCategory size={24} /></span>{" "}<b >CATEGORY MASTER</b></h2>
       <form className="row g-3" onSubmit={handleSubmit}>
         <div className="col-md-6">
-          <label className="form-label">Category ID<span className="text-danger">*</span></label>
+          <label className="form-label text-dark">Category ID<span className="text-danger">*</span></label>
           <input type="number" className="form-control bg-light" name="parental_id" value={form.parental_id} onChange={handleChange} required/>
         </div>
         <div className="col-md-6">

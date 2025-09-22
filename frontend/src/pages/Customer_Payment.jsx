@@ -69,7 +69,7 @@ const handleDelete = async (id) => {
     
   return (
      <div className="container mt-4">
-      <h3 className="mb-4 fw-bold"><span className='text-success'><MdAttachMoney/></span>CUSTOMER PAYMENT RECEIPT</h3>
+      <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><MdAttachMoney size={24} /></span>{" "}<b >CUSTOMER PAYMENT RECEIPT</b></h2>
       <form className="row g-3" onSubmit={handleSubmit}>
 
         <div className="col-md-6">

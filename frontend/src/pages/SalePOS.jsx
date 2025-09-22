@@ -186,7 +186,7 @@ const SalePOS = () => {
 
   return (
     <div className="container mt-4 bg-gradient-warning">
-      <h3 className="mb-4"><span className="text-success"><TbFileInvoice /></span>  <b>SALES INVOICE/POS</b></h3>
+      <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><TbFileInvoice size={24} /></span>{" "}<b >SALES/INVOICE MASTER</b></h2>
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
           <div className="col-md-6">

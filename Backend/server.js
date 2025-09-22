@@ -16,6 +16,7 @@ const customerpaymentRoutes=require('./routes/customerpaymentRoutes')
 const supplierpaymentRoutes=require("./routes/supplierpaymentRoutes")
 const stockadjustmentRoutes=require("./routes/stockadjRoutes")
 const reportRoutes=require("./routes/reportRoutes")
+const userRoutes=require('./routes/userRoutes')
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -40,7 +41,7 @@ app.use("/api/cus_receipts",customerpaymentRoutes)
 app.use("/api/sup_receipts",supplierpaymentRoutes)
 app.use("/api/stocksadj",stockadjustmentRoutes)
 app.use("/api/reports", reportRoutes);
-
+app.use("/api/users",userRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

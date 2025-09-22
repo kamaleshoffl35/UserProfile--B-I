@@ -140,9 +140,7 @@ const Purchase = () => {
     };
     return (
         <div className="container mt-4 bg-gradient-warning">
-            <h3 className="mb-4">
-                <span className="text-success"><BiPurchaseTag /></span> <b>PURCHASE ENTRY</b>
-            </h3>
+            <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><BiPurchaseTag size={24} /></span>{" "}<b >PURCHASE MASTER</b></h2>
             <form className="row g-3" onSubmit={handleSubmit}>
                 <div className="col-md-6">
                     <label className="form-label">Supplier<span className="text-danger">*</span></label>

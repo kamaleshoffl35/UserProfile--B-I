@@ -5,6 +5,8 @@ import { FcCancel } from "react-icons/fc";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import axios from 'axios';
+import 'react-phone-input-2/lib/style.css';
+import PhoneInput from 'react-phone-input-2';
 
 const Customer = () => {
     const [customers, setCustomer] = useState([])
@@ -59,21 +61,21 @@ const Customer = () => {
             c.phone.toString().includes(search) ||
             c.email.toLowerCase().includes(search.toLowerCase())
     );
-     const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/customers/${id}`);
-      setCustomer(customers.filter((c) => c._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-    
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/customers/${id}`);
+            setCustomer(customers.filter((c) => c._id !== id));
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
 
 
     return (
 
         <div className="container mt-4 bg-gradient-warning">
-            <h3 className="mb-4"><span className="text-success"><IoIosContact /></span>  <b>CUSTOMER MASTER</b></h3>
+            <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{ color: "#4d6f99ff" }}><IoIosContact size={24} /></span>{" "}<b >CUSTOMER MASTER</b></h2>
             <form className="row g-3" onSubmit={handleSubmit}>
 
                 <div className="col-md-6">
@@ -81,23 +83,33 @@ const Customer = () => {
                     <input type="text" className="form-control bg-light" placeholder="Enter full name" onChange={handleChange} name="name" value={form.name} required pattern="[A-Za-z\s]+" />
                 </div>
                 <div className="col-md-6">
-                    <label className="form-label">Mobile Number <span className="text-danger">*</span></label>
-                    <div className="input-group">
-                        <select
-                            className="form-select"
-                            style={{ maxWidth: "100px" }}
-                            name="country_code"
-                            value={form.country_code}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value="+91">🇮🇳 +91</option>
-                            <option value="+1">🇺🇸 +1</option>
-                            <option value="+44">🇬🇧 +44</option>
-                        </select>
-
-                        <input type="number" className="form-control bg-light" placeholder="10-digit mobile number" maxLength="10" minLength="10" onChange={handleChange} name="phone" value={form.phone} required pattern="\d{10}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }} />
-                    </div></div>
+                    <label className="form-label">
+                        Mobile Number <span className="text-danger">*</span>
+                    </label>
+                    <PhoneInput
+                        country={'in'}
+                        value={form.phone}
+                        onChange={(phone) => setForm({ ...form, phone })}
+                        inputProps={{
+                            name: 'phone',
+                            required: true,
+                            autoFocus: true,
+                            pattern: "\\d{10,15}",
+                            className: 'form-control bg-light',
+                        }}
+                        containerStyle={{ width: '100%' }}
+                        inputStyle={{
+                            width: '100%',
+                            height: '38px', // match Bootstrap default input height
+                            padding: '6px 12px',
+                            fontSize: '1rem',
+                        }}
+                        buttonStyle={{
+                            border: '1px solid #ced4da',
+                            height: '38px',
+                        }}
+                    />
+                </div>
                 <div className="col-md-6">
                     <label className="form-label">GSTIN (Optional)</label>
                     <input type="text" className="form-control bg-light" placeholder="Optional GSTIN" onChange={handleChange} name="gstin" value={form.gstin} />
@@ -170,26 +182,26 @@ const Customer = () => {
                                     </td>
                                 </tr>
                             ) : (
-                            customers.map((c) => (
-                                <tr key={c._id}>
-                                    <td>{c.name}</td>
-                                    <td>{c.phone}</td>
-                                    <td>{c.gstin}</td>
-                                    <td>{c.email}</td>
-                                    <td>{c.billing_address}</td>
-                                    <td>{c.shipping_address}</td>
-                                    <td>{c.state_code}</td>
-                                    <td>{c.credit_limit}</td>
-                                    <td>{c.opening_balance}</td>
-<td>
-                                            <button className="btn btn-danger btn-sm" onClick={()=>handleDelete(c._id)}>
+                                customers.map((c) => (
+                                    <tr key={c._id}>
+                                        <td>{c.name}</td>
+                                        <td>{c.phone}</td>
+                                        <td>{c.gstin}</td>
+                                        <td>{c.email}</td>
+                                        <td>{c.billing_address}</td>
+                                        <td>{c.shipping_address}</td>
+                                        <td>{c.state_code}</td>
+                                        <td>{c.credit_limit}</td>
+                                        <td>{c.opening_balance}</td>
+                                        <td>
+                                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>
                                                 <span className="text-warning">
                                                     <MdDeleteForever />
                                                 </span>
                                                 Delete
                                             </button></td>
-                                </tr>
-                            )))}
+                                    </tr>
+                                )))}
                         </tbody>
 
                     </table>

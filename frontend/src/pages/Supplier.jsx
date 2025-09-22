@@ -4,6 +4,9 @@ import { FaRegSave } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import axios from 'axios';
+import 'react-phone-input-2/lib/style.css';
+import PhoneInput from 'react-phone-input-2';
+
 
 const Supplier = () => {
   const [suppliers, setSupplier] = useState([])
@@ -65,7 +68,7 @@ const Supplier = () => {
   };
   return (
     <div className="container mt-4 bg-gradient-warning">
-      <h3 className="mb-4"><span className="text-success"><IoIosContact /></span>  <b>SUPPLIER MASTER</b></h3>
+<h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><IoIosContact size={24} /></span>{" "}<b >SUPPLIER MASTER</b></h2>
       <form className="row g-3" onSubmit={handleSubmit} >
 
         <div className="col-md-6">
@@ -73,21 +76,33 @@ const Supplier = () => {
           <input type="text" className="form-control bg-light" placeholder="Enter Supplier Name" name="name" value={form.name} onChange={handleChange} required/>
         </div>
         <div className="col-md-6">
-          <label className="form-label">Mobile Number<span className="text-danger">*</span></label><div className="input-group">
-                        <select
-                            className="form-select"
-                            style={{ maxWidth: "100px" }}
-                            name="country_code"
-                            value={form.country_code}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value="+91">🇮🇳 +91</option>
-                            <option value="+1">🇺🇸 +1</option>
-                            <option value="+44">🇬🇧 +44</option>
-                        </select>
-          <input type="number" className="form-control bg-light" placeholder="10-digit mobile number" maxLength="10" minLength="10" name="phone" value={form.phone} onChange={handleChange} pattern="\d{10}" required onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }} />
-        </div></div>
+                    <label className="form-label">
+                        Mobile Number <span className="text-danger">*</span>
+                    </label>
+                    <PhoneInput
+                        country={'in'}
+                        value={form.phone}
+                        onChange={(phone) => setForm({ ...form, phone })}
+                        inputProps={{
+                            name: 'phone',
+                            required: true,
+                            autoFocus: true,
+                            pattern: "\\d{10,15}",
+                            className: 'form-control bg-light',
+                        }}
+                        containerStyle={{ width: '100%' }}
+                        inputStyle={{
+                            width: '100%',
+                            height: '38px', // match Bootstrap default input height
+                            padding: '6px 12px',
+                            fontSize: '1rem',
+                        }}
+                        buttonStyle={{
+                            border: '1px solid #ced4da',
+                            height: '38px',
+                        }}
+                    />
+                    </div>
 
         <div className="col-md-6">
           <label className="form-label">GSTIN (Optional)</label>

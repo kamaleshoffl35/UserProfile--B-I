@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
 // import ExportButtons from "./components/ExportButtons";
-import { TbReportSearch } from "react-icons/tb";
+import { TbFileReport, TbReportSearch } from "react-icons/tb";
 const Reports = () => {
   const handleExcel = () => alert("Export to Excel");
   const handlePdf = () => alert("Export to PDF");
@@ -9,22 +9,22 @@ const Reports = () => {
 
   return (
     <div className="container mt-4">
-      <h3 className="mb-4"><span className="text-success"><TbReportSearch /></span>  <b>REPORTS</b></h3>
+      <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><TbFileReport size={24} /></span>{" "}<b >REPORTS</b></h2>
       <ul className="nav nav-tabs mb-3">
         <li className="nav-item">
-          <NavLink to="sales" className="nav-link text-warning">Sales Report</NavLink>
+          <NavLink to="sales" className={({ isActive }) =>`nav-link ${isActive || location.pathname === "/reports"? "bg-primary text-white" : "bg-light text-dark"}`}>Sales Report</NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to="purchase" className="nav-link">Purchase Report</NavLink>
+          <NavLink to="purchase" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>Purchase Report</NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to="stock" className="nav-link">Stock Report</NavLink>
+          <NavLink to="stock" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>Stock Report</NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to="gst" className="nav-link">GST Report</NavLink>
+          <NavLink to="gst" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>GST Report</NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to="profit-loss" className="nav-link">Profit/Loss Report</NavLink>
+          <NavLink to="profit-loss" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>Profit/Loss Report</NavLink>
         </li>
       </ul>
 

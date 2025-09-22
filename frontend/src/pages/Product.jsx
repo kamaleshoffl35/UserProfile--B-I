@@ -101,7 +101,7 @@ const Product = () => {
 
     return (
         <div className="container mt-4 bg-gradient-warning">
-            <h2 className="mb-4"><span className="text-success"><MdProductionQuantityLimits />  </span><b>PRODUCT MASTER</b></h2>
+           <h2 className="mb-4 d-flex align-items-center fs-5" ><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><MdProductionQuantityLimits size={24} /></span>{" "}<b >PRODUCT MASTER</b></h2>
             <form className="row g-3" onSubmit={handleSubmit}>
                 <div className="col-md-6">
                     <label className="form-label ">Product Name <span className="text-danger">*</span></label>
@@ -192,8 +192,8 @@ const Product = () => {
                 </div>
                 <div className="col-12">
 
-                    <button type="submit" className="btn btn-primary">
-                        <span className="text-warning">
+                    <button type="submit" className="btn btn-primary px-4 d-flex align-items-center justify-content-center">
+                        <span className="text-warning me-2 d-flex align-items-center">
                             <FaCartPlus />
                         </span>
                         Add Product
@@ -236,8 +236,8 @@ const Product = () => {
                                     <tr key={p.id}>
                                         <td>{p.sku}</td>
                                         <td>{p.name}</td>
-                                        <td>{p.category_id}</td>
-                                        <td>{p.brand_name}</td>
+                                        <td>{p.category_id?.name || p.category_id || ""}</td>
+        <td>{p.brand_name || (p.brand_id?.name ?? "")}</td>
                                         <td>{p.unit_id}</td>
                                         <td>{p.tax_rate_id}</td>
                                         <td>{p.mrp}</td>

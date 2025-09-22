@@ -73,7 +73,7 @@ const Supplier_Payment = () => {
 
   return (
     <div className="container mt-4">
-      <h3 className="mb-4"><span className="me-2 text-success"><GiTakeMyMoney /></span><b>SUPPILER PAYMENT RECEIPT</b></h3>
+     <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><GiTakeMyMoney size={24} /></span>{" "}<b >SUPPLIER PAYMENT RECEIPT</b></h2>
       <form className="row g-3" onSubmit={handleSubmit}>
         <div className="col-md-6">
           <label className="form-label">Supplier <span className="text-danger">*</span></label>

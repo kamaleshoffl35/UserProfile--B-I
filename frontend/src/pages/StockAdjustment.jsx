@@ -107,7 +107,7 @@ const StockAdjustment = () => {
 
     return (
         <div className="container mt-4">
-            <h3 className="mb-4"><span className="me-2 text-success"><PiShippingContainer /></span> <b>STOCK ADJUSTMENT</b></h3>
+            <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><PiShippingContainer size={24} /></span>{" "}<b >STOCK ADJUSTMENT</b></h2>
             <form onSubmit={handleSubmit}>
                 <div className="row g-3 mb-3">
                     <div className="col-md-6">
