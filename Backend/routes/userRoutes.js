@@ -1,13 +1,28 @@
-
 const express = require("express");
 const router = express.Router();
-const {register,login,getUserById,getMe,updateUser,listUsers}=require("../controllers/userController");
+const {
+  register,
+  login,
+  getUserById,
+  getMe,
+  updateUser,
+  listUsers,
+  forgotPassword,
+  resetPassword,
+} = require("../controllers/userController");
 
-router.post("/register",register);
-router.post("/login",login);
-router.get("/me",getMe); // uses x-user-id header or ?userId=
-router.get("/",listUsers);
-router.get("/:id",getUserById);
-router.put("/:id",updateUser);
+// Static routes first
+router.post("/register", register);
+router.post("/login", login);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
+
+router.get("/me", getMe);
+router.get("/", listUsers);
+
+// Dynamic route must go LAST
+router.put("/:id", updateUser);
+router.get("/:id", getUserById);
+
 
 module.exports = router;

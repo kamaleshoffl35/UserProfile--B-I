@@ -2,40 +2,40 @@ const SupplierPayment = require("../models/SupplierPayment")
 const Supplier = require("../models/Supplier");
 
 exports.getSupplierPayments = async (req, res) => {
+  try {
     try {
-        try {
-            const receipts = await SupplierPayment.find().populate('supplier_id', 'name')
-            res.json(receipts)
-        }
-        catch (err) {
-            res.status(400).json({ error: err.message })
-        }
-
+      const receipts = await SupplierPayment.find().populate('supplier_id', 'name')
+      res.json(receipts)
     }
     catch (err) {
-        res.status(500).json({ error: err.message })
+      res.status(400).json({ error: err.message })
     }
+
+  }
+  catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 }
 
 exports.addSupplierPayment = async (req, res) => {
-    try {
-        const supplier = await Supplier.findById(req.body.supplier_id);
-        const receipt = new SupplierPayment({ ...req.body, supplier_name: supplier.name });
-        await receipt.save();
-        await receipt.populate("supplier_id", "name");
+  try {
+    const supplier = await Supplier.findById(req.body.supplier_id);
+    const receipt = new SupplierPayment({ ...req.body, supplier_name: supplier.name });
+    await receipt.save();
+    await receipt.populate("supplier_id", "name");
 
-        res.json(receipt);
-    }
-    catch (err) {
-        res.status(400).json({ error: err.message })
-    }
+    res.json(receipt);
+  }
+  catch (err) {
+    res.status(400).json({ error: err.message })
+  }
 }
 
-exports.deletePayment= async(req,res)=>{
-  try{
-    const deleted=await SupplierPayment.findByIdAndDelete(req.params.id);
+exports.deletePayment = async (req, res) => {
+  try {
+    const deleted = await SupplierPayment.findByIdAndDelete(req.params.id);
     if (!deleted) {
-      return res.status(404).json({message:"Supplier not found" });
+      return res.status(404).json({ message: "Supplier not found" });
     }
     res.json({ message: "Supplier deleted" });
   } catch (err) {

@@ -35,11 +35,11 @@ export default function Dashboard() {
   const location = useLocation();
 
   // Force redirect to Dashboard on refresh
-  useEffect(() => {
-    if (location.pathname !== "/") {
-      navigate("/");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (location.pathname !== "/") {
+  //     navigate("/");
+  //   }
+  // }, []);
 
   const toggleSidebar = () => {
     if (sidebarOpen) {
@@ -56,7 +56,7 @@ export default function Dashboard() {
 
   return (
     <div className="d-flex flex-column vh-100">
-      {/* Navbar */}
+      
       <nav className="navbar navbar-expand-lg navbar-dark bg-white shadow">
         <div className="container-fluid">
           <button
@@ -73,7 +73,6 @@ export default function Dashboard() {
             </span>
           </a>
 
-          {/* Right side: User profile */}
           <div className="ms-auto d-flex align-items-center gap-2">
             <UserProfile />
           </div>
@@ -81,7 +80,7 @@ export default function Dashboard() {
       </nav>
 
       <div className="d-flex flex-grow-1">
-        {/* Sidebar (icons only) */}
+      
         {sidebarOpen && (
           <div
             className="p-3"
@@ -107,7 +106,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Main content */}
+    
         <div className="flex-grow-1 p-4 overflow-auto" style={{ backgroundColor: "#c9d9ecff" }}>
           <div className="bg-white border rounded shadow-sm p-4 h-100">
             <Outlet />
@@ -115,7 +114,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Hover style */}
+
       <style>{`
         .hover-bg-light:hover {
           background-color: rgba(255, 255, 255, 0.1) !important;

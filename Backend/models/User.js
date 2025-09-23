@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
   avatar:{type:String}, 
   address:{type:String},
   password:{type:String,required:true },
-  status:{type:Boolean,default:true }
+  status:{type:Boolean,default:true },
+  resetPasswordToken:{type:String},
+  resetPasswordExpires:{type:Date},
 }, { timestamps:true });
 
 userSchema.pre("save", async function(next){

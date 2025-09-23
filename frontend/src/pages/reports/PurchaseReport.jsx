@@ -6,9 +6,9 @@ import { FaSearch } from "react-icons/fa";
 
 
 const PurchaseReport = () => {
-  const [suppliers, setSuppliers] = useState([])
-  const [purchasereport, setPurchasereport] = useState([])
-  const [form, setForm] = useState({
+  const [suppliers,setSuppliers]=useState([])
+  const [purchasereport,setPurchasereport]=useState([])
+  const [form,setForm]=useState({
     from_date: "",
     to_date: "",
     supplier_id: "",
@@ -22,14 +22,14 @@ const PurchaseReport = () => {
       .then(res => setPurchasereport(res.data))
       .catch(err => console.error(err))
   }, [])
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm({ ...form, [name]: value })
+  const handleChange=(e)=>{
+    const {name,value}=e.target
+    setForm({ ...form,[name]:value})
   }
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post("http://localhost:5000/api/reports/purchase", form)
+      const res=await axios.post("http://localhost:5000/api/reports/purchase", form)
       setPurchasereport([...purchasereport, res.data])
       setForm({
         from_date: "",
@@ -41,24 +41,24 @@ const PurchaseReport = () => {
       console.error(err.response?.data || err.message)
     }
   }
-  const [search, setSearch] = useState("");
-  const filteredreports = purchasereport.filter((p) => {
-    const supplierName = p.supplier_id?.name || p.supplier_id?.toString() || "";
+  const [search,setSearch]=useState("");
+  const filteredreports=purchasereport.filter((p) => {
+    const supplierName=p.supplier_id?.name || p.supplier_id?.toString() || "";
     return (
       supplierName.toLowerCase().includes(search.toLowerCase()) ||
       p.from_date.toString().toLowerCase().includes(search.toLowerCase())
     );
   });
 
-  
+
   const handleDelete = async (id) => {
-  try {
-    await axios.delete(`http://localhost:5000/api/reports/purchase/${id}`);
-    setPurchasereport(purchasereport.filter((p) => p._id !== id));
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      await axios.delete(`http://localhost:5000/api/reports/purchase/${id}`);
+      setPurchasereport(purchasereport.filter((p) => p._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
   return (

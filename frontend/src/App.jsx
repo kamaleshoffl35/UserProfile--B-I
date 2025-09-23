@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Router } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
@@ -23,6 +23,8 @@ import GstReport from "./pages/reports/GSTReport";
 import Login from "./pages/Login"
 import Profile from "./pages/Profile"
 import Register from "./pages/Register"
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const ProtectedRoute = ({ children }) => {
   const user = localStorage.getItem("user"); 
@@ -34,10 +36,13 @@ function App() {
     <>
       
       <div className="container-fluid w-100 p-0">
+        
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<protectedRoute>{<Dashboard/>}</protectedRoute>}>
+          <Route path="/forgot-password" element={<ForgotPassword/>}/>
+          <Route path="/reset-password/:token" element={<ResetPassword/>}/>
+          <Route path="/" element={<ProtectedRoute>{<Dashboard/>}</ProtectedRoute>}>
           
           <Route path="/products" element={<Product />} />
           <Route path="/categories" element={<Category />} />
@@ -62,6 +67,7 @@ function App() {
             </Route>
             <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+        
       </div>
     </>
   );
