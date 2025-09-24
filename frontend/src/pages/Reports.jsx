@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-// import ExportButtons from "./components/ExportButtons";
+import ExportButtons from "../components/ExportButtons";
 import { TbFileReport, TbReportSearch } from "react-icons/tb";
 const Reports = () => {
   const handleExcel = () => alert("Export to Excel");
@@ -24,16 +24,16 @@ const Reports = () => {
           <NavLink to="gst" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>GST Report</NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to="profit-loss" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>Profit/Loss Report</NavLink>
+          <NavLink to="profitloss" className={({ isActive }) =>`nav-link ${isActive ? "bg-primary text-white" : "bg-light text-dark"}`}>Profit/Loss Report</NavLink>
         </li>
       </ul>
 
       {/* Export Buttons at the top-left */}
-      {/* <ExportButtons
+      <ExportButtons
         onExcel={handleExcel}
         onPdf={handlePdf}
         onPrint={handlePrint}
-      /> */}
+      />
 
       {/* Render selected report */}
       <Outlet />

@@ -4,8 +4,10 @@ import { LiaWeightSolid } from "react-icons/lia";
 import { IoSaveOutline } from "react-icons/io5";
 import axios from 'axios';
 import { FaSearch } from "react-icons/fa";
+import { useDispatch,useSelector } from 'react-redux';
 
 import { MdDeleteForever } from "react-icons/md";
+import { fetchUnits } from '../redux/unitSlice';
 const Units = () => {
   const [units, setUnits] = useState([])
   const [form, setForm] = useState({
@@ -13,9 +15,7 @@ const Units = () => {
     symbol:""
   })
   useEffect(()=>{
-    axios.get("http://localhost:5000/api/units")
-    .then(res => setUnits(res.data))
-    .catch(err => console.error(err))
+    dispatch(fetchUnits)
   },[])
   const handleChange =(e)=>{
     const {name,value,type,checked} = e.target

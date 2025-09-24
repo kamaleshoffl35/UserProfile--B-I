@@ -25,6 +25,7 @@ import Profile from "./pages/Profile"
 import Register from "./pages/Register"
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ProfitLossReport from "./pages/reports/ProfitLossReport";
 
 const ProtectedRoute = ({ children }) => {
   const user = localStorage.getItem("user"); 
@@ -63,6 +64,7 @@ function App() {
              <Route path="/reports/purchase" element={<PurchaseReport />}/>
              <Route path="/reports/stock" element={<StockReport />}/>
              <Route path="/reports/gst" element={<GstReport />}/>
+              <Route path="/reports/profitloss" element={<ProfitLossReport/>}/>
             </Route>
             </Route>
             <Route path="*" element={<Navigate to="/login" replace />} />

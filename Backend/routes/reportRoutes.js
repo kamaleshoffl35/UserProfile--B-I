@@ -2,7 +2,8 @@ const express = require("express");
 const {getSaleReports,addSaleReport, deleteSaleReport} = require("../controllers/saleReportController");
 const {getPurchaseReports,addPurchaseReport, deletePurchaseReport} = require("../controllers/purchaseReportController");
 const {getStockReports,addStockReport, deleteStockReport}=require("../controllers/stockReportController")
-const {getGSTReports,addGSTReport, deletegstReport}=require("../controllers/gstReportController")
+const {getGSTReports,addGSTReport, deletegstReport}=require("../controllers/gstReportController");
+const { getProfitLoss } = require("../controllers/profitlossController");
 const router = express.Router();  
 
 router.get("/sales", getSaleReports);
@@ -21,4 +22,5 @@ router.get("/gst",getGSTReports)
 router.post("/gst",addGSTReport)
 router.delete("/gst/:id",deletegstReport)
 
+router.get("/profitloss",getProfitLoss)
 module.exports = router;   

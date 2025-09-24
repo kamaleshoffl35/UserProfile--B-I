@@ -4,9 +4,14 @@ import { MdOutlineCategory } from "react-icons/md";
 import { RiFunctionAddLine } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories,addCategory,deleteCategory } from "../redux/categorySlice";
+
 
 const Category = () => {
-  const [categories, setCategories] = useState([]);
+  const dispatch=useDispatch()
+  const {items:categories,status}=useSelector((state)=>state.categories)
+
    const [form, setForm] = useState({
     parental_id: "",
     name: "",
@@ -34,12 +39,11 @@ const Category = () => {
   };
 const [subcategories, setSubcategories] = useState([]);
 const [brands, setBrands] = useState([]);
- useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/categories")
-      .then((res) => setCategories(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+
+ useEffect(()=>{
+  dispatch(fetchCategories)
+ },[])
+
  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 if (name === "name") {
@@ -81,13 +85,9 @@ const handleSubmit = async (e) => {
     );
 
 const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/categories/${id}`);
-      setCategories(categories.filter((c) => c._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
+    dispatch(deleteCategory(id))
   };
+  
  return (
     <div className="container mt-4 bg-gradient-warning">
       <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><MdOutlineCategory size={24} /></span>{" "}<b >CATEGORY MASTER</b></h2>
