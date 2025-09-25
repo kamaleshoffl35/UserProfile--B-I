@@ -21,3 +21,16 @@ exports.addTax = async (req, res) => {
     res.status(400).json({ error: err.message })
   }
 }
+
+
+exports.deletetax = async (req, res) => {
+  try {
+    const deleted = await Tax.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Tax not found" });
+    }
+    res.json({ message: "Tax deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

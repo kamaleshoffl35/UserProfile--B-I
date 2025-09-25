@@ -7,9 +7,13 @@ import axios from 'axios';
 import 'react-phone-input-2/lib/style.css';
 import PhoneInput from 'react-phone-input-2';
 import { State, Country } from 'country-state-city';
+import { useDispatch,useSelector } from 'react-redux';
+import { addcustomer, deletecustomer, fetchcustomers } from '../redux/customerSlice';
 
 const Customer = () => {
-    const [customers, setCustomer] = useState([]);
+   const dispatch=useDispatch()
+   const {items:customers,status} = useSelector((state)=>state.customers)
+    
     const [form, setForm] = useState({
         name: "",
         phone: "",
@@ -26,9 +30,7 @@ const Customer = () => {
     const [search, setSearch] = useState("");
 
     useEffect(() => {
-        axios.get("http://localhost:5000/api/customers")
-            .then(res => setCustomer(res.data))
-            .catch(err => console.error(err))
+        dispatch(fetchcustomers())
     }, []);
 
     // Function to update states based on country code
@@ -104,8 +106,7 @@ const Customer = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:5000/api/customers", form);
-            setCustomer([...customers, res.data]);
+           dispatch(addcustomer(form))
             setForm({
                 name: "",
                 phone: "",
@@ -125,12 +126,7 @@ const Customer = () => {
     };
 
     const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5000/api/customers/${id}`);
-            setCustomer(customers.filter(c => c._id !== id));
-        } catch (err) {
-            console.error(err);
-        }
+        dispatch(deletecustomer(id))
     };
 
     const filteredCustomers = customers.filter(
@@ -175,7 +171,7 @@ const Customer = () => {
                             name: 'phone',
                             required: true,
                             autoFocus: true,
-                            pattern: "\\d{10,15}",
+                             pattern: "^[0-9\\-\\+\\s]{7,15}$",
                             className: 'form-control bg-light',
                         }}
                         containerStyle={{ width: '100%' }}
@@ -251,9 +247,68 @@ const Customer = () => {
                     <button type="button" className="btn btn-secondary me-2"><FcCancel /> Cancel</button>
                     <button type="submit" className="btn btn-primary"><FaRegSave /> Save Customer</button>
                 </div>
-            </form>
+            </form><br />
 
-            {/* Rest of your component remains the same */}
+            <div className=" card shadow-sm">
+                   <div className="card-body">
+                     <h5 className="mb-3">Customer Tree</h5>
+                     <div className="mt-4 mb-2 input-group">
+                                             <input type="text" className="form-control" placeholder="Search customer name" value={search} onChange={(e) => setSearch(e.target.value)} />
+                                             <span className="input-group-text"><FaSearch /></span>
+                                         </div>
+                     <table className="table table-bordered table-striped">
+                       <thead className="table-dark">
+                         <tr>
+                           <th className="fw-bold">Customer Name</th>
+                           <th className="fw-bold">Mobile Number</th>
+                           <th className="fw-bold">State</th>
+                           <th className="fw-bold">GSTIN</th>
+                           <th className="fw-bold">Email</th>
+                           <th className="fw-bold">Address</th>
+                            <th className="fw-bold">Credit Limit</th>
+                             <th className="fw-bold">Opening Balance</th>
+                              <th className="fw-bold">Status</th>
+                           <th className="fw-bold">Actions</th>
+                         </tr>
+                       </thead>
+                       <tbody>{filteredCustomers.length === 0 ? (
+                                           <tr>
+                                               <td colSpan="11" className="text-center">
+                                                   No customers found.
+                                               </td>
+                                           </tr>
+                                       ) : (
+                         filteredCustomers.map((c) => (
+                           <tr key={c._id}>
+                             <td>{c.name}</td>
+                             <td>{c.phone}</td>
+                             <td>{c.state_code}</td>
+                             <td>{c.gstin}</td>
+                             <td>{c.email}</td>
+                             <td>{c.billing_address}</td>
+                             <td>{c.credit_limit}</td>
+                             <td>{c.opening_balance}</td>
+                             <td className={c.status ? "text-success" : "text-danger"}>
+                               {c.status ? "Active" : "Inactive"}
+                             </td>
+                             <td>
+                               <button
+                                 className="btn btn-danger btn-sm"
+                                 onClick={() => handleDelete(c._id)}
+                               >
+                                 <span className="text-warning">
+                                   <MdDeleteForever />
+                                 </span>
+                                 Delete
+                               </button>
+                             </td>
+                           </tr>)
+                         ))
+           } 
+           </tbody>
+                     </table>
+                   </div>
+                 </div>
         </div>
     );
 };

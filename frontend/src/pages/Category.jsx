@@ -41,7 +41,7 @@ const [subcategories, setSubcategories] = useState([]);
 const [brands, setBrands] = useState([]);
 
  useEffect(()=>{
-  dispatch(fetchCategories)
+  dispatch(fetchCategories())
  },[])
 
  const handleChange = (e) => {
@@ -60,8 +60,7 @@ if (name === "name") {
 const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/categories", form);
-      setCategories([...categories, res.data]);
+      dispatch(addCategory(form))
       setForm({
         parental_id: "",
         name: "",

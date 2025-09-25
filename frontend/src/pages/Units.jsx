@@ -7,7 +7,7 @@ import { FaSearch } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 
 import { MdDeleteForever } from "react-icons/md";
-import { deleteUnit, fetchUnits } from '../redux/unitSlice';
+import { addUnit, deleteUnit, fetchUnits } from '../redux/unitSlice';
 const Units = () => {
   const dispatch=useDispatch()
     const {items:units,status}=useSelector((state)=>state.units)
@@ -17,7 +17,7 @@ const Units = () => {
   })
 
   useEffect(() => {
-    dispatch(fetchUnits)
+    dispatch(fetchUnits())
   }, [])
 
   const handleChange = (e) => {
@@ -27,19 +27,15 @@ const Units = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault()
-    try {
-      const res = await axios.post("http://localhost:5000/api/units", form)
-      console.log(res.data)
-      setUnits([...units, res.data])
+    
+     dispatch(addUnit(form))
       setForm({
         name: "",
         symbol: ""
       })
 
-    }
-    catch (err) {
-      console.error(err.response.data || err.message)
-    }
+    
+    
   }
 
   const [search, setSearch] = useState("");
@@ -51,7 +47,7 @@ const Units = () => {
   );
 
   const handleDelete = async (id) => {
-   dispatch(deleteUnit)
+   dispatch(deleteUnit(id))
   };
 
 

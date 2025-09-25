@@ -7,9 +7,13 @@ import { FaSearch } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import PhoneInput from 'react-phone-input-2';
 import { State, Country } from 'country-state-city';
+import { useDispatch,useSelector } from 'react-redux';
+import { addwarehouse, deletewarehouse, fetchwarehouses } from '../redux/warehouseSlice';
 
 const Warehouse = () => {
-  const [warehouses, setWarehouse] = useState([])
+  const dispatch=useDispatch()
+  const {items:warehouses,status}=useSelector((state)=>state.warehouses)
+  
   const [form, setForm] = useState({
     store_name: "",
     code: "",
@@ -24,9 +28,7 @@ const Warehouse = () => {
   const [states, setStates] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/warehouses")
-      .then(res => setWarehouse(res.data))
-      .catch(err => console.error(err))
+   dispatch(fetchwarehouses())
   }, [])
 
   // Function to update states based on country code
@@ -90,8 +92,7 @@ const Warehouse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post("http://localhost:5000/api/warehouses", form);
-      setWarehouse([...warehouses, res.data])
+     dispatch(addwarehouse(form))
       setForm({
         store_name: "",
         code: "",
@@ -119,12 +120,7 @@ const Warehouse = () => {
   );
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/warehouses/${id}`);
-      setWarehouse(warehouses.filter((w) => w._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
+    dispatch(deletewarehouse(id))
   };
 
   return (
@@ -170,7 +166,7 @@ const Warehouse = () => {
               name: 'phone',
               required: true,
               autoFocus: true,
-              pattern: "\\d{10,15}",
+              pattern: "^[0-9\\-\\+\\s]{7,15}$",
               className: 'form-control bg-light',
             }}
             containerStyle={{ width: '100%' }}

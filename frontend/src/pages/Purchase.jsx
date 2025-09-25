@@ -4,12 +4,20 @@ import { BiPurchaseTag } from "react-icons/bi";
 import { MdDeleteForever } from "react-icons/md";
 import { FaRegSave } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
+import { useDispatch,useSelector } from "react-redux";
+import { addpurchase, deletepurchase, fetchpurchases } from "../redux/purchaseSlice";
+import { fetchProducts } from "../redux/productSlice";
+import { fetchwarehouses } from "../redux/warehouseSlice";
+import { fetchsuppliers } from "../redux/supplierSlice";
 
 
 const Purchase = () => {
-    const [suppliers, setSuppliers] = useState([]);
-    const [warehouses, setWarehouses] = useState([]);
-    const [products, setProducts] = useState([]);
+ 
+    const dispatch= useDispatch()
+    const {items:purchases,status}=useSelector((state)=>state.purchases)
+    const { items: suppliers } = useSelector((state) => state.suppliers)
+    const {items:warehouses}=useSelector((state)=>state.warehouses)
+    const {items:products}=useSelector((state)=>state.products)
     const [purchase, setPurchase] = useState({
         supplier_id: "",
         invoice_no: "",
@@ -29,15 +37,10 @@ const Purchase = () => {
     const [purchaseList, setPurchaseList] = useState([]);
 
     useEffect(() => {
-        axios.get("http://localhost:5000/api/suppliers")
-            .then(res => setSuppliers(res.data));
-        axios.get("http://localhost:5000/api/warehouses")
-            .then(res => setWarehouses(res.data));
-        axios.get("http://localhost:5000/api/products")
-            .then(res => setProducts(res.data));
-        axios.get("http://localhost:5000/api/purchases")
-            .then(res => setPurchaseList(res.data))
-            .catch(err => console.error("Error fetching purchases:", err));
+       dispatch(fetchsuppliers())
+       dispatch(fetchwarehouses())
+       dispatch(fetchProducts())
+        dispatch(fetchpurchases())
     }, []);
 
     const handleChange = (e) => {
@@ -95,34 +98,36 @@ const Purchase = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        calculateTotals();
-        try {
-            const res = await axios.post("http://localhost:5000/api/purchases", purchase);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  calculateTotals();
+  try {
+    // Use unwrap to get the response from the thunk
+    const res = await dispatch(addpurchase(purchase)).unwrap();
 
+    setPurchaseList([...purchaseList, res]); // res has _id from backend
 
-            setPurchaseList([...purchaseList, res.data]);
-            setPurchase({
-                supplier_id: "",
-                invoice_no: "",
-                invoice_date: "",
-                warehouse_id: "",
-                items: [{ product_id: "", batch_no: "", mfg_date: "", exp_date: "", qty: 0, unit_price: 0, discount: 0, tax: 0, line_total: 0 }],
-                subtotal: 0,
-                discount_amount: 0,
-                other_charges: 0,
-                round_off: 0,
-                grand_total: 0,
-                paid_amount: 0,
-                due_amount: 0,
-                payment_mode: "",
-                notes: ""
-            });
-        } catch (err) {
-            console.error(err.response?.data || err.message);
-        }
-    };
+    setPurchase({
+      supplier_id: "",
+      invoice_no: "",
+      invoice_date: "",
+      warehouse_id: "",
+      items: [{ product_id: "", batch_no: "", mfg_date: "", exp_date: "", qty: 0, unit_price: 0, discount: 0, tax: 0, line_total: 0 }],
+      subtotal: 0,
+      discount_amount: 0,
+      other_charges: 0,
+      round_off: 0,
+      grand_total: 0,
+      paid_amount: 0,
+      due_amount: 0,
+      payment_mode: "",
+      notes: ""
+    });
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+  }
+};
+
 
     const [search, setSearch] = useState("");
     const filteredpurchase = purchaseList.filter((p) =>
@@ -131,24 +136,37 @@ const Purchase = () => {
         (p.items?.some(item => products.find(prod => prod._id === item.product_id)?.name?.toLowerCase().includes(search.toLowerCase())))
     );
     const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5000/api/purchases/${id}`);
-            setPurchase(purchase.filter((c) => c._id !== id));
-        } catch (err) {
-            console.error(err);
-        }
-    };
+  if (!id) return console.error("Purchase ID is undefined");
+  try {
+    await dispatch(deletepurchase(id)).unwrap();
+    setPurchaseList(purchaseList.filter(p => p._id !== id));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
     return (
         <div className="container mt-4 bg-gradient-warning">
             <h2 className="mb-4 d-flex align-items-center fs-5"><span className="  me-2 d-flex align-items-center" style={{color:"#4d6f99ff"}}><BiPurchaseTag size={24} /></span>{" "}<b >PURCHASE MASTER</b></h2>
             <form className="row g-3" onSubmit={handleSubmit}>
-                <div className="col-md-6">
-                    <label className="form-label">Supplier<span className="text-danger">*</span></label>
-                    <select name="supplier_id" className="form-select bg-light" value={purchase.supplier_id} onChange={handleChange} required>
-                        <option value="">Select Supplier</option>
-                        {suppliers.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
-                    </select>
-                </div>
+             <div className="col-md-6">
+  <label className="form-label">Supplier<span className="text-danger">*</span></label>
+  <select 
+    name="supplier_id" 
+    className="form-select bg-light" 
+    value={purchase.supplier_id} 
+    onChange={handleChange} 
+    required
+  >
+    <option value="">Select Supplier</option>
+    {suppliers.map((s) => (
+      <option key={s._id} value={s._id}>
+        {s.name}
+      </option>
+    ))}
+  </select>
+</div>
+
                 <div className="col-md-6">
                     <label className="form-label">Invoice No<span className="text-danger">*</span></label>
                     <input type="text" name="invoice_no" className="form-control bg-light" value={purchase.invoice_no} onChange={handleChange} required />
@@ -183,49 +201,53 @@ const Purchase = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredpurchase.length === 0 ? (
-                                <tr>
-                                    <td colSpan="11" className="text-center">
-                                        No purchases found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                purchase.items.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            <select name="product_id" value={item.product_id} className="form-select" onChange={(e) => handleItemChange(index, e)} required>
-                                                <option value="">Select Product</option>
-                                                {products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-                                            </select>
-                                        </td>
-                                        <td><input name="batch_no" value={item.batch_no} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td><input type="date" name="mfg_date" value={item.mfg_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td><input type="date" name="exp_date" value={item.exp_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td><input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td><input type="number" name="unit_price" value={item.unit_price} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td><input type="number" name="discount" value={item.discount} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td><input type="number" name="tax" value={item.tax} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
-                                        <td>
-                                            <input
-                                                type="number"
-                                                name="line_total"
-                                                value={(
-                                                    (Number(item.qty) || 0) * (Number(item.unit_price) || 0) -
-                                                    (Number(item.discount) || 0) +
-                                                    (Number(item.tax) || 0)
-                                                ).toFixed(2)}
-                                                className="form-control"
-                                                disabled
-                                            />
-                                        </td>
-                                        <td>
-                                            <button type="button" className="btn btn-danger btn-sm" onClick={() => removeItem(index)}>
-                                                <span className="text-warning"><MdDeleteForever /></span>Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                )))}
-                        </tbody>
+  {purchase.items.map((item, index) => (
+    <tr key={index}>
+      <td>
+        <select
+          name="product_id"
+          value={item.product_id}
+          className="form-select"
+          onChange={(e) => handleItemChange(index, e)}
+          required
+        >
+          <option value="">Select Product</option>
+          {products.map((p) => (
+            <option key={p._id} value={p._id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </td>
+      <td><input name="batch_no" value={item.batch_no} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td><input type="date" name="mfg_date" value={item.mfg_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td><input type="date" name="exp_date" value={item.exp_date} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td><input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td><input type="number" name="unit_price" value={item.unit_price} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td><input type="number" name="discount" value={item.discount} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td><input type="number" name="tax" value={item.tax} onChange={(e) => handleItemChange(index, e)} className="form-control" /></td>
+      <td>
+        <input
+          type="number"
+          name="line_total"
+          value={(
+            (Number(item.qty) || 0) * (Number(item.unit_price) || 0) -
+            (Number(item.discount) || 0) +
+            (Number(item.tax) || 0)
+          ).toFixed(2)}
+          className="form-control"
+          disabled
+        />
+      </td>
+      <td>
+        <button type="button" className="btn btn-danger btn-sm" onClick={() => removeItem(index)}>
+          <span className="text-warning"><MdDeleteForever /></span>Delete
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
                     </table>
                     <button type="button" className="btn btn-primary btn-sm" onClick={addItem}>+ Add Item</button>
                 </div>

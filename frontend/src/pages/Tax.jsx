@@ -5,8 +5,15 @@ import { FcCancel } from "react-icons/fc";
 import axios from 'axios';
 import { MdDeleteForever } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchUnits } from '../redux/unitSlice';
+import { addtax, deletetax, fetchtaxes } from '../redux/taxSlice';
+
+
 const Tax = () => {
-    const [taxes, setTaxes] = useState([])
+    const dispatch=useDispatch()
+    const  {items:taxes,status} = useSelector((state)=>state.taxes)
+   
     const [form, setForm] = useState({
         name: "",
         cgst_percent: "",
@@ -16,9 +23,7 @@ const Tax = () => {
         is_inclusive: false,
     })
     useEffect(() => {
-        axios.get("http://localhost:5000/api/taxes")
-            .then(res => setTaxes(res.data))
-            .catch(err => console.error(err))
+        dispatch(fetchtaxes())
     }, [])
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target
@@ -30,8 +35,7 @@ const Tax = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            const res = await axios.post("http://localhost:5000/api/taxes", form)
-            setTaxes([...taxes, res.data])
+           dispatch(addtax(form))
             setForm({
                 name: "",
                 cgst_percent: "",
@@ -55,12 +59,7 @@ const Tax = () => {
         );
 
     const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/taxes/${id}`);
-      setTaxes(taxes.filter((t) => t._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
+    dispatch(deletetax(id))
   };
 
     return (

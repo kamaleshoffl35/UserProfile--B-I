@@ -7,9 +7,13 @@ import axios from 'axios';
 import 'react-phone-input-2/lib/style.css';
 import PhoneInput from 'react-phone-input-2';
 import { State, Country } from 'country-state-city';
+import { useDispatch, useSelector } from 'react-redux';
+import { addSupplier, deleteSupplier, fetchsuppliers } from '../redux/supplierSlice';
 
 const Supplier = () => {
-  const [suppliers, setSupplier] = useState([])
+  const dispatch=useDispatch()
+  const {items:suppliers,status}=useSelector((state)=>state.suppliers)
+  
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -23,9 +27,7 @@ const Supplier = () => {
   const [states, setStates] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/suppliers")
-      .then(res => setSupplier(res.data))
-      .catch(err => console.error(err))
+   dispatch(fetchsuppliers())
   }, [])
 
   // Function to update states based on country code
@@ -89,8 +91,7 @@ const Supplier = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post("http://localhost:5000/api/suppliers", form);
-      setSupplier([...suppliers, res.data])
+  dispatch(addSupplier(form))
       setForm({
         name: "",
         phone: "",
@@ -117,12 +118,7 @@ const Supplier = () => {
   );
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/suppliers/${id}`);
-      setSupplier(suppliers.filter((s) => s._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
+    dispatch(deleteSupplier(id))
   };
 
   return (
@@ -153,7 +149,7 @@ const Supplier = () => {
               name: 'phone',
               required: true,
               autoFocus: true,
-              pattern: "\\d{10,15}",
+                 pattern: "^[0-9\\-\\+\\s]{7,15}$",
               className: 'form-control bg-light',
             }}
             containerStyle={{ width: '100%' }}

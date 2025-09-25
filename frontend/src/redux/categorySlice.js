@@ -9,7 +9,7 @@ export const fetchCategories=createAsyncThunk("categories/fetchAll",async () => 
 })
 
 export const addCategory=createAsyncThunk("categories/add",async (category) => {
-    const res =await axios.post(API_URL)
+    const res =await axios.post(API_URL,category)
     return res.data
 })
 
@@ -37,7 +37,7 @@ const categorySlice=createSlice({
         })
         .addCase(fetchCategories.rejected,(state,action)=>{
            state.status="failed"
-           state.items=action.error.message
+           state.error=action.error.message
         })
         .addCase(addCategory.fulfilled,(state,action)=>{
             state.items.push(action.payload)
